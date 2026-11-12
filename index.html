@@ -10,18 +10,21 @@
   <pre id="resultado">Cargando la prueba…</pre>
 
   <script type="module">
-    import { buildEdgePair } from "./src/geometry.js";
+    import { buildEdgePair, movePiece } from "./src/geometry.js";
 
     const A = { x: 0, y: 0 };
     const B = { x: 10, y: 0 };
     const alpha = Math.atan2(7, 24);
 
-    const { M, C, D } = buildEdgePair(A, B, alpha);
-
-    const mostrar = ({ x, y }) => `(${x.toFixed(2)}, ${y.toFixed(2)})`;
-
+    const pair = buildEdgePair(A, B, alpha);
+    const moved = movePiece(pair.pieces[0], A, B, Math.PI, - alpha);
+    
+    const [newA, newM, newC] = moved.vertices;
+    
     document.querySelector("#resultado").textContent =
-      `M = ${mostrar(M)}\nC = ${mostrar(C)}\nD = ${mostrar(D)}`;
+      `A -> ${mostrar(newA)} (B)\n` +
+      `M -> ${mostrar(newM)} (D)\n` +
+      `C -> ${mostrar(newC)} (M)`;
   </script>
 </body>
 </html>
