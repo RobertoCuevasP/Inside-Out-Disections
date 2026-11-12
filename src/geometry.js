@@ -8,6 +8,9 @@ export function buildEdgePair(A, B, alpha){
         y: A.y + dy
     };
 
+    const cos = Math.cos(alpha);
+    const sin = Math.cos(alpha);
+
     // We turn AM size with an angle alpha on A
     const C = {
         x: A.x + cos * dx - sin * dy,
