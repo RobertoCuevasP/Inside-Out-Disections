@@ -51,3 +51,12 @@ export function movePiece(piece, from, to, angle) {
 
     return { ...piece, vertices};
 }
+
+export function swapEdgePair(pair, A, B, alpha) {
+    const [first, second] = pair.pieces;
+
+    return [
+        movePiece(first, A, B, Math.PI - alpha),
+        movePiece(second, B, A, Math.PI + alpha)
+    ];
+}
