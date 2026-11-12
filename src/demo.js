@@ -5,7 +5,7 @@ const B = { x : 10, y : 0 };
 const V = { x : 3, y : 7 };
 const alpha = Math.atan2(7, 24);
 
-const { before } = buildTriangleDissection(A, B, V, alpha);
+const { after } = buildTriangleDissection(A, B, V, alpha);
 const svg = document.querySelector("#drawing");
 const svgNamespace = "http://www.w3.org/2000/svg";
 
@@ -33,4 +33,4 @@ function drawPieces(pieces) {
     });
 }
 
-drawPieces(before);
+drawPieces(after);
