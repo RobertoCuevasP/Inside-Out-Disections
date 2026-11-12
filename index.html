@@ -15,7 +15,8 @@
     const A = { x: 0, y: 0 };
     const B = { x: 10, y: 0 };
     const alpha = Math.atan2(7, 24);
-    
+
+    const mostrar = ({ x, y }) => `(${x.toFixed(2)}, ${y.toFixed(2)})`;
     const pair = buildEdgePair(A, B, alpha);
     const [firstMoved, secondMoved] = swapEdgePair(pair, A, B, alpha);
 
