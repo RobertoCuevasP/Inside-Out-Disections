@@ -20,7 +20,8 @@
     const moved = movePiece(pair.pieces[0], A, B, Math.PI, - alpha);
     
     const [newA, newM, newC] = moved.vertices;
-    
+    const mostrar = ({ x, y }) => `(${x.toFixed(2)}, ${y.toFixed(2)})`;
+
     document.querySelector("#resultado").textContent =
       `A -> ${mostrar(newA)} (B)\n` +
       `M -> ${mostrar(newM)} (D)\n` +
