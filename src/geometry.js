@@ -14,7 +14,7 @@ export function buildEdgePair(A, B, alpha) {
     // We turn AM size with an angle alpha on A
     const C = {
         x: A.x + cos * dx - sin * dy,
-        y: B.y + sin * dx + cos * dy
+        y: A.y + sin * dx + cos * dy
     };
 
     const D = {
