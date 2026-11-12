@@ -28,7 +28,7 @@ function drawPieces(pieces) {
 
         polygon.setAttribute("points", points);
         polygon.setAttribute("fill", colors[index]);
-        polygon.setAttribute("strike", "#334155");
+        polygon.setAttribute("stroke", "#334155");
         polygon.setAttribute("stroke-width", "0.03");
 
         svg.append(polygon);
@@ -45,7 +45,7 @@ function drawPieces(pieces) {
         line.setAttribute("x1", start.x);
         line.setAttribute("y1", -start.y);
         line.setAttribute("x2", end.x);
-        line.setAttribute("y2", -start.y);
+        line.setAttribute("y2", -end.y);
         line.setAttribute("stroke", "#7f1d1d");
         line.setAttribute("stroke-width", "0.08");
         line.setAttribute("stroke-dasharray", "0.18 0.12");
@@ -57,7 +57,7 @@ function drawPieces(pieces) {
 
 const steps = {
     original: {
-        pieces: [{ vertices.originalEdge: null }],
+        pieces: [{ vertices, originalEdge: null }],
         description: "Original triangle, before cutting."
     },
     cuts: {
@@ -70,13 +70,13 @@ const steps = {
     }
 };
 
-const buttons = document.querySelectorAll("button[data-step");
+const buttons = document.querySelectorAll("button[data-step]");
 const description = document.querySelector("#step-description");
 
 function showStep(name) {
     const step = steps[name];
 
-    drawPieces(steps.pieces);
+    drawPieces(step.pieces);
     description.textContent = step.description;
     svg.setAttribute("aria-label", step.description);
 

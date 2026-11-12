@@ -70,7 +70,7 @@ export function buildTriangleDissection(A, B, V, alpha) {
     }
 
     // We will go in anticlock order
-    const vertices = cross > 0 ? [A, B, V] : [A. V, B];
+    const vertices = cross > 0 ? [A, B, V] : [A, V, B];
 
     const angles = vertices.map((point, i) => {
         const next = vertices[(i + 1) % 3];
