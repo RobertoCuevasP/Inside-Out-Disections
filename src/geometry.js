@@ -60,3 +60,56 @@ export function swapEdgePair(pair, A, B, alpha) {
         movePiece(second, B, A, Math.PI + alpha)
     ];
 }
+
+export function buildTriangleDissection(A, B, V, alpha) {
+    // Orientation calculus
+    const cross = (B.x - A.x) * (V.y - A.y) - (B.y - A.y) * (V.x - A.x);
+
+    if (cross === 0) {
+        throw new Error("The given vertices does not form a triangle.");
+    }
+
+    // We will go in anticlock order
+    const vertices = cross > 0 ? [A, B, V] : [A. V, B];
+
+    const angles = vertices.map((point, i) => {
+        const next = vertices[(i + 1) % 3];
+        const previous = vertices[(i + 2) % 3];
+
+        const ux = next.x - point.x;
+        const uy = next.y - point.y;
+        const vx = previous.x - point.x;
+        const vy = previous.y - point.y;
+
+        return Math.atan2(Math.abs(ux * vy - uy * vx), ux * vx + uy * vy);
+    });
+
+    if (!(alpha > 0 && 2 * alpha < Math.min(...angles))) {
+        throw new Error("The angle cut does not leave margin in the corners.");
+    }
+
+    const before = [];
+    const after = [];
+    const centralVertices = [];
+
+    for (let i = 0; i < 3; i++) {
+        const start = vertices[i];
+        const end = vertices[(i + 1) % 3];
+        const pair = buildEdgePair(start, end, alpha);
+
+        before.push(...pair.pieces);
+        after.push(...swapEdgePair(pair, start, end, alpha));
+
+        centralVertices.push(start, pair.C, pair.M, pair.D);
+    }
+
+    const central = {
+        vertices: centralVertices,
+        originalEdge: null
+    };
+
+    before.push(central);
+    after.push(central);
+
+    return { vertices, before, after };
+}

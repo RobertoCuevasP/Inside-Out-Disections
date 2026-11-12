@@ -10,20 +10,21 @@
   <pre id="resultado">Cargando la prueba…</pre>
 
   <script type="module">
-    import { buildEdgePair, movePiece, swapEdgePair } from "./src/geometry.js";
+    import { buildEdgePair, movePiece, swapEdgePair, buildTriangleDissection } from "./src/geometry.js";
 
     const A = { x: 0, y: 0 };
     const B = { x: 10, y: 0 };
+    const V = { x: 3, y: 7};
     const alpha = Math.atan2(7, 24);
-
     const mostrar = ({ x, y }) => `(${x.toFixed(2)}, ${y.toFixed(2)})`;
-    const pair = buildEdgePair(A, B, alpha);
-    const [firstMoved, secondMoved] = swapEdgePair(pair, A, B, alpha);
+    const { before, after } = buildTriangleDissection(A, B, V, alpha);
 
     document.querySelector("#resultado").textContent =
-        `Primera pieza: ${firstMoved.vertices.map(mostrar).join(" -> ")}\n` +
-        `Segunda pieza: ${secondMoved.vertices.map(mostrar).join(" -> ")}`;
-
+        `Pieces before: ${before.length}\n` +
+        `Pieces after: ${after.length}\n` +
+        `Vertices from central piece: ${before[6].vertices.length}\n` +
+        `BV, first piece before: ${before[2].vertices.map(mostrar).join(" -> ")}\n` +
+        `BV, first piece after: ${after[2].vertices.map(mostrar).join(" -> ")}`;
   </script>
 </body>
 </html>
