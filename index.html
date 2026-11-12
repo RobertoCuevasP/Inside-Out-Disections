@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inside-out Dissection triangle test</title>
+</head>
+<body>
+  <h1>Inside-Out Dissection of a Triangle</h1>
+  <div role="group" aria-label="Disection steps">
+    <legend>Dashed lines mark segments of the original boundary. Follow them from cuts to reconstruction</legend>
+    <button type="button" data-step="original">Original</button>
+    <button type="button" data-step="cuts">Cuts</button>
+    <button type="button" data-step="after">Reconstruction</button>
+  </div>
+  <p id="step-description" aria-live="polite"></p>
+  <svg id="drawing" viewBox="-0.5 -7.5 11 8" width="100%" role="img" aria-label="Triangle divided into seven pieces"></svg>
+  <script type="module" src="./src/demo.js"></script>
+</body>
+</html>
