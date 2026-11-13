@@ -247,3 +247,41 @@ export function findTriangleOutsidePolygon(pieces, polygon, eps = 1e-9) {
 
     return null;
 }
+
+function segmentsTouchOrCross(a, b, c, d, eps) {
+    const oppositeSigns = (x, y) => (x < 0 && y > 0) || (x > 0 && y < 0);
+
+    return properCrossing 
+        || cutPointOnSegment(a, c, d, eps)
+        || cutPointOnSegment(b, c, d, eps)
+        || cutPointOnSegment(c, a, b, eps)
+        || cutPointOnSegment(d, a, b, eps);
+}
+
+export function isSimpleBoundary(vertices, eps = 1e-9) {
+    const n = vertices.length;
+    if (n < 3) return false;
+
+    for (let i = 0; i < n; i++) {
+        const previous = vertices[(i + n - 1) % n];
+        const a = vertices[i];
+        const b = vertices[(i + 1) % n];
+        
+        if (Math.hypot(b.x - a.x, b.y - a.y) <= eps) return false;
+
+        if (cutPointOnSegment(previous, a, b, eps) || cutPointOnSegment(b, previous, a, eps)) {
+            return false;
+        }
+
+        for (let j = i + 1; j < n; j++) {
+            if (j === i + 1 || (i === 0 && j === n -1)) continue;
+
+            const c = vertices[j];
+            const d = vertices[(j + 1) % n];
+
+            if (segmentsTouchOrCross(a, b, c, d, eps)) return false;
+        }
+    }
+
+    return true;
+}

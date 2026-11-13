@@ -1,4 +1,4 @@
-import { buildPolygonDissection, findOverlappingTriangles, findTriangleOutsidePolygon } from "./geometry.js";
+import { buildPolygonDissection, findOverlappingTriangles, findTriangleOutsidePolygon, isSimpleBoundary } from "./geometry.js";
 
 const triangle = [
     { x: 0, y: 0 },
@@ -62,6 +62,20 @@ const results = [alpha, alpha / 2].map((angle) => {
 const output = document.createElement("pre");
 output.textContent = results.join("\n");
 document.body.append(output);
+
+const central = before[before.length -1];
+
+const crossedBoundary ? [
+    { x: 0, y: 0 },
+    { x: 4, y: 4 },
+    { x: 0, y: 4 },
+    { x: 4, y: 0 },
+];
+
+const boundaryOutput = document.createElement("pre");
+boundaryOutput.textContent = `Central boundary is simple ${isSimpleBoundary(central.vertices)}\n` + `Crossed boundary is simple: ${isSimpleBoundary(crossedBoundary)}`;
+document.body.append(boundaryOutput);
+
 
 const { vertices, before, after } = buildPolygonDissection(pentagon, alpha);
 
