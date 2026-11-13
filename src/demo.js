@@ -59,9 +59,9 @@ const results = [alpha, alpha / 2].map((angle) => {
         : `${degrees} degrees: piece ${invalid + 1} fails containment`;
 });
 
-const output = document.createElement("pre");
+/*const output = document.createElement("pre");
 output.textContent = results.join("\n");
-document.body.append(output);
+document.body.append(output);*/
 
 const central = before[before.length -1];
 
