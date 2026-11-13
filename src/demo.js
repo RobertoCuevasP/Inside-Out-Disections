@@ -65,7 +65,7 @@ document.body.append(output);
 
 const central = before[before.length -1];
 
-const crossedBoundary ? [
+const crossedBoundary = [
     { x: 0, y: 0 },
     { x: 4, y: 4 },
     { x: 0, y: 4 },
