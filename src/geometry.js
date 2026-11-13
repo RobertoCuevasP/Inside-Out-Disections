@@ -251,6 +251,8 @@ export function findTriangleOutsidePolygon(pieces, polygon, eps = 1e-9) {
 function segmentsTouchOrCross(a, b, c, d, eps) {
     const oppositeSigns = (x, y) => (x < 0 && y > 0) || (x > 0 && y < 0);
 
+    const properCrossing = oppositeSigns(cutCross(a, b, c), cutCross(a, b, d)) && oppositeSigns(cutCross(c, d, a), cutCross(c, d, b));
+
     return properCrossing 
         || cutPointOnSegment(a, c, d, eps)
         || cutPointOnSegment(b, c, d, eps)
