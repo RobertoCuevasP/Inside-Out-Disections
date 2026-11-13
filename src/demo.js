@@ -22,7 +22,7 @@ const pentagon = [
 ];
 
 const alpha = Math.atan2(7, 24);
-const { vertices, before, after} = buildPolygonDissection(pentagon, alpha);
+const { vertices, before, after} = buildPolygonDissection(rectangle, alpha);
 
 const colors = [
     "#60a5fa", "#93c5fd",
