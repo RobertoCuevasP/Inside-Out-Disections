@@ -113,3 +113,27 @@ export function buildTriangleDissection(A, B, V, alpha) {
 
     return { vertices, before, after };
 }
+
+export function buildPolygonDissection(vertices, alpha) {
+    const before = [];
+    const after = [];
+    const centralVertices = [];
+
+    for (let i = 0; i < vertices.length; i++) {
+        const start = vertices[i];
+        const end = vertices[(i + 1) % vertices.length];
+
+        const pair = buildEdgePair(start, end, alpha);
+        before.push(...pair.pieces);
+        after.push(...swapEdgePair(pair, start, end, alpha));
+
+        centralVertices.push(start, pair.C, pair.M, pair.D);
+    }
+
+    const central = {
+        vertices: centralVertices,
+        originalEdge: null
+    };
+
+    return { vertices, before, after };
+}

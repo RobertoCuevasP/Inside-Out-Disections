@@ -1,4 +1,4 @@
-import { buildTriangleDissection } from "./geometry.js";
+/*import { buildTriangleDissection } from "./geometry.js";
 
 const A = { x : 0, y : 0 };
 const B = { x : 10, y : 0 };
@@ -6,15 +6,35 @@ const V = { x : 3, y : 7 };
 const alpha = Math.atan2(7, 24);
 
 const { vertices, before, after} = buildTriangleDissection(A, B, V, alpha);
+*/
 
+import { buildPolygonDissection } from "./geometry.js";
+
+const rectangle = [
+    { x: 0, y: 0 },
+    { x: 10, y: 0 },
+    { x: 10, y: 6 },
+    { x: 0, y: 6 }
+];
+
+const alpha = Math.atan2(7, 24);
+const { vertices, before, after } = buildPolygonDissection(rectangle, alpha);
 
 const svg = document.querySelector("#drawing");
 const svgNamespace = "http://www.w3.org/2000/svg";
+
+/*const colors = [
+    "#60a5fa", "#93c5fd",
+    "#fb923c", "#fdba74",
+    "#4ade80", "#86efac",
+    "#e2e8f0"
+];*/
 
 const colors = [
     "#60a5fa", "#93c5fd",
     "#fb923c", "#fdba74",
     "#4ade80", "#86efac",
+    "#c084fc", "#d8b4fe",
     "#e2e8f0"
 ];
 
