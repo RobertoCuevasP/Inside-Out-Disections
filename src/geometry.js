@@ -137,3 +137,43 @@ export function buildPolygonDissection(vertices, alpha) {
 
     return { vertices, before, after };
 }
+
+function trianglesOverlap(a, b, epsilon = 1e-9){
+    for (const triangle of [a, b]) {
+        for (let i = 0; i < triangle.length; i++) {
+            const start = triangle[i];
+            const end = triangle[(i + 1) % triangle.length];
+            const dx = end.x - start.x;
+            const dy = end.y - start.y;
+            const length = Math.hypot(dx, dy);
+
+            if (length === 0) continue;
+
+            const nx = -dy / length;
+            const ny = dx / length;
+            const project = ({ x, y }) => x * nx + y * ny;
+
+            const pa = a.map(project);
+            const pb = b.map(project);
+            const overlap = Math.min(Math.max(...pa), Math.max(...pb)) - Math.max(Math.min(...pa), Math.min(...pb));
+
+            if (overlap <= epsilon) return false;
+        }
+    }
+
+    return true;
+}
+
+export function findOverlappingTriangles(pieces){
+    const triangles = pieces.slice(0, -1);
+
+    for (let i = 0; i < triangles.length; i++) {
+        for (let j = i + 1; j < triangles.length; j++) {
+            if (trianglesOverlap(triangles[i].vertices, triangles[j].vertices)) {
+                return [i, j];
+            }
+        }
+    }
+
+    return null;
+}

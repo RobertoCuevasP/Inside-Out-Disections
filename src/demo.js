@@ -1,4 +1,4 @@
-import { buildPolygonDissection } from "./geometry.js";
+import { buildPolygonDissection, findOverlappingTriangles } from "./geometry.js";
 
 const triangle = [
     { x: 0, y: 0 },
@@ -21,7 +21,27 @@ const pentagon = [
     { x: 0, y: 6 }
 ];
 
+const narrowRectangle = [
+    { x: 0, y: 0 },
+    { x: 10, y: 0 },
+    { x: 10, y: 2 },
+    { x: 0, y: 2 }
+];
+
 const alpha = Math.atan2(7, 24);
+
+const results = [alpha, alpha / 2].map((angle) => {
+    const { before } = buildPolygonDissection(narrowRectangle, angle);
+    const pair = findOverlappingTriangles(before);
+    const degrees = (angle * 180 / Math.PI).toFixed(2);
+
+    return pair === null ? `${degrees}°: no triangle overlap detected` : `${degrees}°: pieces ${pair[0] + 1} and ${pair[1] + 1} overlap`;
+});
+
+const output = document.createElement("pre");
+output.textContent = result.join("\n");
+document.body.append(output);
+
 const { vertices, before, after} = buildPolygonDissection(rectangle, alpha);
 
 const colors = [
