@@ -49,7 +49,7 @@ const alpha = Math.atan2(7, 24);
     return pair === null ? `${degrees} degrees: no triangle overlap detected` : `${degrees} degrees: pieces ${pair[0] + 1} and ${pair[1] + 1} overlap`;
 });*/
 
-const result = [alpha, alpha / 2].map((angle) => {
+const results = [alpha, alpha / 2].map((angle) => {
     const { before } = buildPolygonDissection(notchedPolygon, angle);
     const invalid = findTriangleOutsidePolygon(before, notchedPolygon);
     const degrees = (angle * 180 / Math.PI).toFixed(2);
