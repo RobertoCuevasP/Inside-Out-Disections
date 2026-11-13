@@ -1,4 +1,4 @@
-import { buildPolygonDissection, findOverlappingTriangles } from "./geometry.js";
+import { buildPolygonDissection, findOverlappingTriangles, findTriangleOutsidePolygon } from "./geometry.js";
 
 const triangle = [
     { x: 0, y: 0 },
@@ -28,14 +28,35 @@ const narrowRectangle = [
     { x: 0, y: 2 }
 ];
 
+const notchedPolygon = [
+    { x: 0, y: 0 },
+    { x: 10, y: 0 },
+    { x: 10, y: 6 },
+    { x: 3, y: 6 },
+    { x: 3, y: 0.5 },
+    { x: 2, y: 0.5 },
+    { x: 2, y: 6 },
+    { x: 0, y: 6 },
+];
+
 const alpha = Math.atan2(7, 24);
 
-const results = [alpha, alpha / 2].map((angle) => {
+/*const results = [alpha, alpha / 2].map((angle) => {
     const { before } = buildPolygonDissection(narrowRectangle, angle);
     const pair = findOverlappingTriangles(before);
     const degrees = (angle * 180 / Math.PI).toFixed(2);
 
-    return pair === null ? `${degrees}°: no triangle overlap detected` : `${degrees}°: pieces ${pair[0] + 1} and ${pair[1] + 1} overlap`;
+    return pair === null ? `${degrees} degrees: no triangle overlap detected` : `${degrees} degrees: pieces ${pair[0] + 1} and ${pair[1] + 1} overlap`;
+});*/
+
+const result = [alpha, alpha / 2].map((angle) => {
+    const { before } = buildPolygonDissection(notchedPolygon, angle);
+    const invalid = findTriangleOutsidePolygon(before, notchedPolygon);
+    const degrees = (angle * 180 / Math.PI).toFixed(2);
+
+    return invalid === null
+        ? `${degrees} degrees: all triangular pieces pass containment`
+        : `${degrees} degrees: piece ${invalid + 1} fails containment`;
 });
 
 const output = document.createElement("pre");

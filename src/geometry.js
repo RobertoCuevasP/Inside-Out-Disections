@@ -177,3 +177,73 @@ export function findOverlappingTriangles(pieces){
 
     return null;
 }
+
+function cutCross(a, b, p) {
+    return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+}
+
+function cutPointOnSegment(p, a, b, eps) {
+    const length = Math.hypot(b.x - a.x, b.y - a.y);
+
+    return Math.abs(cutCross(a, b, p)) <= eps * length 
+        && p.x >= Math.min(a.x, b.x) - eps
+        && p.x <= Math.max(a.x, b.x) + eps
+        && p.y >= Math.min(a.y, b.y) - eps
+        && p.y <= Math.max(a.y, b.y) + eps;
+}
+
+function cutPointStrictlyInside(point, polygon, eps) {
+    let inside = false;
+
+    for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i];
+        const b = polygon[(i + 1) % polygon.length];
+
+        if (cutPointOnSegment(point, a, b, eps)) return false;
+
+        if ((a.y > point.y) !== (b.y > point.y)) {
+            const crossingX = a.x + (point.y - a.y) * (b.x - a.x) / (b.y - a.y);
+
+            if (crossingX > point.x) inside = !inside;
+        }
+    }
+
+    return inside;
+}
+
+function cutTouchesBoundaryAgain(start, tip, polygon, eps) {
+    const oppositeSigns = (a, b) => (a < 0 && b > 0) || (a > 0 && b < 0);
+
+    for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i];
+        const b = polygon[(i + 1) % polygon.length];
+
+        const crosses = oppositeSigns(cutCross(start, tip, a), cutCross(start, tip, b)) && oppositeSigns(cutCross(a, b, start), cutCross(a, b, tip));
+
+        if (crosses) return true;
+
+        for (const vertex of [a, b]){
+            const isStart = Math.hypot(vertex.x - start.x, vertex.y - start.y) <= eps;
+
+            if (!isStart && cutPointOnSegment(vertex, start, tip, eps)) {
+                return true;
+            }
+        }        
+    }
+
+    return false;
+}
+
+export function findTriangleOutsidePolygon(pieces, polygon, eps = 1e-9) {
+    for (let i = 0; i < pieces.length - 1; i++) {
+        const [start, midpoint, tip] = pieces[i].vertices;
+
+        if (!cutPointStrictlyInside(tip, polygon, eps)
+            || cutTouchesBoundaryAgain(start, tip, polygon, eps)
+            || cutTouchesBoundaryAgain(midpoint, tip, polygon, eps)) {
+                return i;
+            }
+    }
+
+    return null;
+}
