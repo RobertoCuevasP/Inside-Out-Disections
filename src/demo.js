@@ -7,7 +7,7 @@ const triangle = [
 ];
 const alpha = Math.atan2(7, 24);
 
-const { vertices, before, after} = buildPolygonDissection(A, B, V, alpha);
+const { vertices, before, after} = buildPolygonDissection(triangle, alpha);
 
 const colors = [
     "#60a5fa", "#93c5fd",
