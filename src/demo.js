@@ -9,8 +9,8 @@ const triangle = [
 const rectangle = [
     { x: 0, y: 0 },
     { x: 10, y: 0 },
-    { x: 10, y: 6 },
-    { x: 0, y: 6 }
+    { x: 10, y: 2 },
+    { x: 0, y: 2 }
 ];
 
 const pentagon = [
