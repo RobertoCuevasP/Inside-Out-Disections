@@ -63,6 +63,8 @@ const results = [alpha, alpha / 2].map((angle) => {
 output.textContent = results.join("\n");
 document.body.append(output);*/
 
+const { vertices, before, after } = buildPolygonDissection(pentagon, alpha);
+
 const central = before[before.length -1];
 
 const crossedBoundary = [
@@ -75,9 +77,6 @@ const crossedBoundary = [
 const boundaryOutput = document.createElement("pre");
 boundaryOutput.textContent = `Central boundary is simple ${isSimpleBoundary(central.vertices)}\n` + `Crossed boundary is simple: ${isSimpleBoundary(crossedBoundary)}`;
 document.body.append(boundaryOutput);
-
-
-const { vertices, before, after } = buildPolygonDissection(pentagon, alpha);
 
 const colors = [
     "#60a5fa", "#93c5fd",
