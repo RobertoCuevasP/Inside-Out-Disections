@@ -39,10 +39,10 @@ const results = [alpha, alpha / 2].map((angle) => {
 });
 
 const output = document.createElement("pre");
-output.textContent = result.join("\n");
+output.textContent = results.join("\n");
 document.body.append(output);
 
-//const { vertices, before, after } = buildPolygonDissection(rectangle, alpha);
+const { vertices, before, after } = buildPolygonDissection(pentagon, alpha);
 
 const colors = [
     "#60a5fa", "#93c5fd",
