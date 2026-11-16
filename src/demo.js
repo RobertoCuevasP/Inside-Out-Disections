@@ -1,4 +1,12 @@
-import { buildPolygonDissection, findOverlappingTriangles, findTriangleOutsidePolygon, isSimpleBoundary, findValidPolygonDissection, polygonArea } from "./geometry.js";
+import { 
+    buildPolygonDissection, 
+    findOverlappingTriangles,
+    findTriangleOutsidePolygon, 
+    isSimpleBoundary, 
+    findValidPolygonDissection, 
+    polygonArea,
+    verifyReconstruction
+} from "./geometry.js";
 
 const triangle = [
     { x: 0, y: 0 },
@@ -185,6 +193,11 @@ try {
     lines.push(`Pieces before: ${totalArea(result.before).toFixed(6)}`);
     lines.push(`Pieces after: ${totalArea(result.after).toFixed(6)}`);
     
+    lines.push(`Reconstruction matches: ${verifyReconstruction(result)}`);
+    const wrongAfter = [...result.after];
+    wrongAfter[0] = result.before[0];
+    lines.push(`Incorrect reconstruction matches: ${verifyReconstruction({ ...result, after: wrongAfter})}`);
+
     angleOutput.textContent = lines.join("\n");
 } catch (error) {
     angleOutput.textContent = `Dissection text: ${error.message}`;

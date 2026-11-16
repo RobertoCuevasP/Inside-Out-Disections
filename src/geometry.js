@@ -364,3 +364,33 @@ export function polygonArea(vertices) {
 
     return Math.abs(twiceArea) / 2;
 }
+
+export function verifyReconstruction({ vertices, before, after }, eps = le-9) {
+    const last = 2 * vertices.length;
+
+    if (before.length !== last + 1 || after.length !== last + 1) {
+        return false;
+    }
+
+    const samePoint = (a, b) => Math.hypot(a.x - b.x, a.y - b.y) <= eps;
+
+    for (let i = 0; i < last; i++) {
+        const partner = i % 2 === 0 ? i + 1 : i - 1;
+        const [a, b, c] = before[partner].vertices;
+        const expected = [a, c, b];
+        const moved = after[i];
+
+        if (moved.vertices.length !== 3 ||
+            !moved.vertices.every((point, j) => samePoint(point, expected[j])) ||
+            moved.originalEdge?.[0] !== 0 ||
+            moved.originalEdge?.[1] !== 1) {
+            return false
+        }        
+    }
+
+    const centralBefore = before[last].vertices;
+    const centralAfter = after[last].vertices;
+
+    return centralBefore.length === centralAfter.length &&
+        centralAfter.every((point, i) => samePoint(point, centralBefore[i]));
+}
