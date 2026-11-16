@@ -353,3 +353,14 @@ export function findValidPolygonDissection(inputVertices, initialAlpha = Math.at
 
     throw new Error(`No candidate passed the geometric checks after ${attempts.length} attempts`);
 }
+
+export function polygonArea(vertices) {
+    const origin = vertices[0];
+    let twiceArea = 0;
+
+    for (let i = 1; i < vertices.length -1; i++) {
+        twiceArea += cutCross(origin, vertices[i], vertices[i + 1]);
+    }
+
+    return Math.abs(twiceArea) / 2;
+}

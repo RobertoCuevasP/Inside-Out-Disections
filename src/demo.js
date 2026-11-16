@@ -175,6 +175,16 @@ try {
     });
 
     lines.push(`Pieces: ${result.before.length}`);
+    
+    const originalArea = polygonArea(piece.vertices);
+    const totalArea = (pieces) => pieces.reduce(
+        (sum, piece) => sum + polygonArea(piece.vertices), 0
+    );
+
+    lines.push(`Original area: ${originalArea.toFixed(6)}`);
+    lines.push(`Pieces before: ${result.before.toFixed(6)}`);
+    lines.push(`Pieces after: ${result.after.toFixed(6)}`);
+    
     angleOutput.textContent = lines.join("\n");
 } catch (error) {
     angleOutput.textContent = `Dissection text: ${error.message}`;
