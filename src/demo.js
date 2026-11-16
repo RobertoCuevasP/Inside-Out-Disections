@@ -1,4 +1,4 @@
-import { buildPolygonDissection, findOverlappingTriangles, findTriangleOutsidePolygon, isSimpleBoundary } from "./geometry.js";
+import { buildPolygonDissection, findOverlappingTriangles, findTriangleOutsidePolygon, isSimpleBoundary, findValidPolygonDissection } from "./geometry.js";
 
 const triangle = [
     { x: 0, y: 0 },
@@ -59,9 +59,9 @@ const results = [alpha, alpha / 2].map((angle) => {
         : `${degrees} degrees: piece ${invalid + 1} fails containment`;
 });
 
-/*const output = document.createElement("pre");
+const output = document.createElement("pre");
 output.textContent = results.join("\n");
-document.body.append(output);*/
+document.body.append(output);
 
 const { vertices, before, after } = buildPolygonDissection(pentagon, alpha);
 
@@ -74,9 +74,9 @@ const crossedBoundary = [
     { x: 4, y: 0 },
 ];
 
-const boundaryOutput = document.createElement("pre");
+/*const boundaryOutput = document.createElement("pre");
 boundaryOutput.textContent = `Central boundary is simple ${isSimpleBoundary(central.vertices)}\n` + `Crossed boundary is simple: ${isSimpleBoundary(crossedBoundary)}`;
-document.body.append(boundaryOutput);
+document.body.append(boundaryOutput);*/
 
 const colors = [
     "#60a5fa", "#93c5fd",
@@ -163,3 +163,21 @@ buttons.forEach((button) => {
 });
 
 showStep("original");
+
+const angleOutput = document.createElement("pre");
+
+try {
+    const result = findValidPolygonDissection(narrowRectangle);
+
+    const lines = result.attempts.map(({ alpha, reason }) => {
+        const degrees = (alpha * 180 / Math.PI).toFixed(2);
+        return `${degrees} degrees: ${reason ?? "accepted"}`;
+    });
+
+    lines.push(`Pieces: ${result.before.length}`);
+    angleOutput.textContent = lines.join("\n");
+} catch (error) {
+    angleOutput.textContent = `Dissection text: ${error.message}`;
+}
+
+document.body.append(angleOutput);

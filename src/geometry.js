@@ -287,3 +287,67 @@ export function isSimpleBoundary(vertices, eps = 1e-9) {
 
     return true;
 }
+
+export function findValidPolygonDissection(inputVertices, initialAlpha = Math.atan2(7, 24), maxAttempts = 20) {
+    if (!Number.isFinite(initialAlpha >= Math.PI / 2) || 
+        initialAlpha <= 0 || initialAlpha >= Math.PI / 2) {
+            throw new Error("The initial cut angle must be between 0 and 90 degrees");
+    }
+
+    if (!Number.isInteger(maxAttempts) || maxAttempts < 1) {
+        throw new Error("The number of attempts must be a positive integer");
+    }
+
+    if (!Array.isArray(inputVertices) || inputVertices.length < 3 || 
+        !inputVertices.every(p => p && Number.isFinite(p.x) && Number.isFinite(p.y))
+        || !isSimpleBoundary(inputVertices) {
+        throw new Error("THe input must be a simple polygon");
+    })
+      
+    const origin = inputVertices[0];
+    let twiceArea = 0;
+
+    for (let i = 1; i < inputVertices.length - 1; i++) {
+        twiceArea += cutCros(origin, inputVertices[i], inputVertices[i + 1]);
+    }
+
+    if (!Number.isFinite(twiceArea) || twiceArea === 0) {
+        throw new Error("The polygon must have a finite, nonzero area");
+    }
+
+    const vertices = [...inputVertices];
+    if (twiceArea < 0) vertices.reverse();
+
+    const attempts = [];
+    let alpha = initialAlpha;
+
+    for (let i = 0; i < maxAttempts && alpha > 0; i++) {
+        const candidate = buildPolygonDissection(vertices, alpha);
+        const { before } = candidate;
+        const central = before[before.length - 1];
+
+        const overlap = findOverlappingTriangles(before);
+        let reason = null;
+
+        if (overlap != null) {
+            reason = `Pieces ${overlap[0] + 1} and ${overlap[1] + 1} overlap.`;
+        } else {
+            const outside = findTriangleOutsidePolygon(before, vertices);
+
+            if (outside !== null) {
+                reason = `Piece ${outside + 1} fails containment`;
+            } else if (!isSimpleBoundary(central.vertices)) {
+                reason = `The central boundary is not simple`;
+            }
+        }
+
+        attempts.push( {alpha, reason });
+        if (reason === null) {
+            return { ...candidate, alpha, attempts };
+        }
+
+        alpha /= 2;
+    }
+
+    throw new Error(`No candidate passed the geometric checks after ${attempts.length} attempts`);
+}
