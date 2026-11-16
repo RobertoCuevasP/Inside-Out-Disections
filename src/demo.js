@@ -1,4 +1,4 @@
-import { buildPolygonDissection, findOverlappingTriangles, findTriangleOutsidePolygon, isSimpleBoundary, findValidPolygonDissection } from "./geometry.js";
+import { buildPolygonDissection, findOverlappingTriangles, findTriangleOutsidePolygon, isSimpleBoundary, findValidPolygonDissectionm, polygonArea } from "./geometry.js";
 
 const triangle = [
     { x: 0, y: 0 },
