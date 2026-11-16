@@ -135,6 +135,9 @@ export function buildPolygonDissection(vertices, alpha) {
         originalEdge: null
     };
 
+    before.push(central);
+    after.push(central);
+
     return { vertices, before, after };
 }
 
