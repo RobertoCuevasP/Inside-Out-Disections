@@ -243,25 +243,11 @@ export function findTriangleOutsidePolygon(pieces, polygon, eps = 1e-9) {
     for (let i = 0; i < pieces.length - 1; i++) {
         const [start, midpoint, tip] = pieces[i].vertices;
 
-        /*if (!cutPointStrictlyInside(tip, polygon, eps)
+        if (!cutPointStrictlyInside(tip, polygon, eps)
             || cutTouchesBoundaryAgain(start, tip, polygon, eps)
             || cutTouchesBoundaryAgain(midpoint, tip, polygon, eps)) {
                 return i;
-        } */
-
-        //temp
-        const tipInside = cutPointStrictlyInside(tip, polygon, eps);
-        const cutFromVertexHits = cutTouchesBoundaryAgain(start, tip, polygon, eps);
-        const cutFromMidpointHits = cutTouchesBoundaryAgain(midpoint, tip, polygon, eps);
-
-        if (!tipInside || cutFromVertexHits || cutFromMidpointHits) {
-            throw new Error(
-                `Piece ${i + 1}: tipInside=${tipInside}, ` +
-                `cutFromVertexHits=${cutFromVertexHits}, ` +
-                `cutFromMidpointHits=${cutFromMidpointHits}. ` +
-                `Coordinates: ${JSON.stringify({ start, midpoint, tip, polygon })}`
-            );
-        }
+        } 
     }
     return null;
 }
