@@ -14,6 +14,12 @@
     <button type="button" data-step="after">Reconstruction</button>
   </div>
   <p id="step-description" aria-live="polite"></p>
+  <div role="group" aria-label="Polygon editor">
+    <button type="button" id="start-polygon">Draw polygon</button>
+    <button type="button" id="undo-vertex" disabled>Undo vertex</button>
+    <button type="button" id="close-polygon" disabled>Close polygon</button>
+  </div>
+  <p id="editor-status" aria-live="polite"></p>
   <svg id="drawing" viewBox="-0.5 -7.5 11 8" width="100%" role="img" aria-label="Rectangle divided into nine pieces"></svg>
   <script type="module" src="./src/demo.js"></script>
 </body>
