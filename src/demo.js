@@ -227,6 +227,22 @@ function drawDraft() {
     path.setAttribute("stroke-width", "0.04");
     svg.append(path);
 
+    if (draft.length >= 3) {
+        const first = draft[0];
+        const last = draft[draft.length - 1];
+        const closingEdge = document.createElementNS(svgNamespace, "line");
+
+        closingEdge.setAttribute("x1", last.x);
+        closingEdge.setAttribute("y1", -last.y);
+        closingEdge.setAttribute("x2", first.x);
+        closingEdge.setAttribute("y2", -first.y);
+        closingEdge.setAttribute("stroke", "#64748b");
+        closingEdge.setAttribute("stroke-width", "0.04");
+        closingEdge.setAttribute("stroke-dasharray", "0.12 0.08");
+
+        svg.append(closingEdge);
+    }
+
     draft.forEach(({ x, y}) => {
         const dot = document.createElementNS(svgNamespace, "circle");
         dot.setAttribute("cx", x);

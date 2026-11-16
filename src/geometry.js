@@ -351,7 +351,10 @@ export function findValidPolygonDissection(inputVertices, initialAlpha = Math.at
         alpha /= 2;
     }
 
-    throw new Error(`No candidate passed the geometric checks after ${attempts.length} attempts`);
+    const firstFailure = attempts[0]?.reason ?? "No attempt was made";
+    const lastFailure = attempts[attempts.length -1]?.reason ?? firstFailure;
+
+    throw new Error(`No candidate passed the geometric checks after ${attempts.length} attempts. First: ${firstFailure}, last: ${lastFailure}`);
 }
 
 export function polygonArea(vertices) {
