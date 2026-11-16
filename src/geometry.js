@@ -221,7 +221,9 @@ function cutTouchesBoundaryAgain(start, tip, polygon, eps) {
         const a = polygon[i];
         const b = polygon[(i + 1) % polygon.length];
 
-        const crosses = oppositeSigns(cutCross(start, tip, a), cutCross(start, tip, b)) && oppositeSigns(cutCross(a, b, start), cutCross(a, b, tip));
+        const startOnEdge = cutPointOnSegment(start, a, b, eps);
+
+        const crosses = !startOnEdge && oppositeSigns(cutCross(start, tip, a), cutCross(start, tip, b)) && oppositeSigns(cutCross(a, b, start), cutCross(a, b, tip));
 
         if (crosses) return true;
 
