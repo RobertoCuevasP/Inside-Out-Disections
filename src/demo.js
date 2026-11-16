@@ -67,9 +67,9 @@ const results = [alpha, alpha / 2].map((angle) => {
         : `${degrees} degrees: piece ${invalid + 1} fails containment`;
 });
 
-const output = document.createElement("pre");
+/*const output = document.createElement("pre");
 output.textContent = results.join("\n");
-document.body.append(output);
+document.body.append(output);*/
 
 const { vertices, before, after } = buildPolygonDissection(pentagon, alpha);
 
@@ -230,7 +230,7 @@ function drawDraft() {
     draft.forEach(({ x, y}) => {
         const dot = document.createElementNS(svgNamespace, "circle");
         dot.setAttribute("cx", x);
-        dot.setAttribute("cy", y);
+        dot.setAttribute("cy", -y);
         dot.setAttribute("r", "0.08");
         dot.setAttribute("fill", "#334155");
         svg.append(dot);
@@ -256,7 +256,7 @@ svg.addEventListener("click", (event) => {
     const transform = svg.getScreenCTM();
     if (!transform) return;
 
-    const point = new DOMPoint(event.clientX, event.clientY).matrixTransforms(transform.inverse());
+    const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(transform.inverse());
     const view = svg.viewBox.baseVal;
     if (point.x < view.x || point.x > view.x + view.width || point.y < view.y || point.y > view.y + view.height) return;
 
