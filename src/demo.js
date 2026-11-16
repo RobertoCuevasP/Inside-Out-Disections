@@ -176,7 +176,7 @@ try {
 
     lines.push(`Pieces: ${result.before.length}`);
     
-    const originalArea = polygonArea(piece.vertices);
+    const originalArea = polygonArea(result.vertices);
     const totalArea = (pieces) => pieces.reduce(
         (sum, piece) => sum + polygonArea(piece.vertices), 0
     );
