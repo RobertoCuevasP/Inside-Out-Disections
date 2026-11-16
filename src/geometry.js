@@ -365,7 +365,7 @@ export function polygonArea(vertices) {
     return Math.abs(twiceArea) / 2;
 }
 
-export function verifyReconstruction({ vertices, before, after }, eps = le-9) {
+export function verifyReconstruction({ vertices, before, after }, eps = 1e-9) {
     const last = 2 * vertices.length;
 
     if (before.length !== last + 1 || after.length !== last + 1) {
