@@ -182,8 +182,8 @@ try {
     );
 
     lines.push(`Original area: ${originalArea.toFixed(6)}`);
-    lines.push(`Pieces before: ${result.before.toFixed(6)}`);
-    lines.push(`Pieces after: ${result.after.toFixed(6)}`);
+    lines.push(`Pieces before: ${totalArea(result.before).toFixed(6)}`);
+    lines.push(`Pieces after: ${totalArea(result.after).toFixed(6)}`);
     
     angleOutput.textContent = lines.join("\n");
 } catch (error) {
