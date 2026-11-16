@@ -289,9 +289,8 @@ export function isSimpleBoundary(vertices, eps = 1e-9) {
 }
 
 export function findValidPolygonDissection(inputVertices, initialAlpha = Math.atan2(7, 24), maxAttempts = 20) {
-    if (!Number.isFinite(initialAlpha >= Math.PI / 2) || 
-        initialAlpha <= 0 || initialAlpha >= Math.PI / 2) {
-            throw new Error("The initial cut angle must be between 0 and 90 degrees");
+    if (!Number.isFinite(initialAlpha) || initialAlpha <= 0 || initialAlpha >= Math.PI / 2) {
+        throw new Error("The initial cut angle must be between 0 and 90 degrees");
     }
 
     if (!Number.isInteger(maxAttempts) || maxAttempts < 1) {
@@ -300,15 +299,15 @@ export function findValidPolygonDissection(inputVertices, initialAlpha = Math.at
 
     if (!Array.isArray(inputVertices) || inputVertices.length < 3 || 
         !inputVertices.every(p => p && Number.isFinite(p.x) && Number.isFinite(p.y))
-        || !isSimpleBoundary(inputVertices) {
+        || !isSimpleBoundary(inputVertices)) {
         throw new Error("THe input must be a simple polygon");
-    })
+    }
       
     const origin = inputVertices[0];
     let twiceArea = 0;
 
     for (let i = 1; i < inputVertices.length - 1; i++) {
-        twiceArea += cutCros(origin, inputVertices[i], inputVertices[i + 1]);
+        twiceArea += cutCross(origin, inputVertices[i], inputVertices[i + 1]);
     }
 
     if (!Number.isFinite(twiceArea) || twiceArea === 0) {
