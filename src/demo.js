@@ -175,6 +175,8 @@ try {
     });
 
     lines.push(`Pieces: ${result.before.length}`);
+    lines.push(`Pices after: ${result.after.length}`);
+    lines.push(`Last piece vertices: ${result.before[result.before.length - 1].vertices.length}`);
     angleOutput.textContent = lines.join("\n");
 } catch (error) {
     angleOutput.textContent = `Dissection text: ${error.message}`;
