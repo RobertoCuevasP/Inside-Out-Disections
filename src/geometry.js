@@ -361,8 +361,8 @@ export function buildHexagonRhombiDissection(vertices, center) {
         };
 
         const pivot = {
-            x: (center.x + middle.x) / 2;
-            y: (center.y + middle.y) / 2;
+            x: (center.x + middle.x) / 2,
+            y: (center.y + middle.y) / 2
         }
 
         before.push(piece);
