@@ -32,27 +32,34 @@
       </svg>
   </section>
 
-
-  <h1>Inside-Out Dissection of a polygon</h1>
-  <div role="group" aria-label="Disection steps">
-    <legend>Dashed lines mark segments of the original boundary. Follow them from cuts to reconstruction</legend>
-    <button type="button" data-step="original">Original</button>
-    <button type="button" data-step="cuts">Cuts</button>
-    <button type="button" data-step="after">Reconstruction</button>
-  </div>
-  <p id="hexagon-example" aria-live="polite"></p>
-  <div role="group" aria-label="Hexagon example">
-    <button type="button" id="hexagon-general">Hexagon: general construction</button>
-    <button type="button" id="hexagon-rhombi">Hexagon: three rhombi</button>
-  </div>
-  <p id="step-description" aria-live="polite"></p>
-  <div role="group" aria-label="Polygon editor">
-    <button type="button" id="start-polygon">Draw polygon</button>
-    <button type="button" id="undo-vertex" disabled>Undo vertex</button>
-    <button type="button" id="close-polygon" disabled>Close polygon</button>
-  </div>
-  <p id="editor-status" aria-live="polite"></p>
-  <svg id="drawing" viewBox="-0.5 -7.5 11 8" width="100%" role="img" aria-label="Rectangle divided into nine pieces"></svg>
+  <section id="general-construction" class="demo-section" aria-labelledby="general-title">
+    <h2 id="general-title">2. The general construction:</h2>
+    <p>For a simple polygon with <var>n</var> sides, this construction uses two triangular pieces per side and one central piece:
+      <strong>2<var>n</var> + 1 pieces</strong>.
+    </p>
+    <p>Start with the example or draw your own polygon. Mark each vertex once, in order, then select <strong>Close polygon</strong>. The dashed closing edge shows where the last vertex joins the first.</p>
+    <p>Select <strong>Cuts</strong> to see the partition, then <strong>Next step</strong> to exchange one pair at a time. Follow the dashed segments: they mark parts of the original boundary.</p>
+    <div role="group" aria-label="Disection steps">
+      <legend>Dashed lines mark segments of the original boundary. Follow them from cuts to reconstruction</legend>
+      <button type="button" data-step="original">Original</button>
+      <button type="button" id="next-swap" disabled>Next step</button>
+      <button type="button" data-step="cuts">Cuts</button>
+      <button type="button" data-step="after">Reconstruction</button>
+    </div>
+    <p id="hexagon-example" aria-live="polite"></p>
+    <div role="group" aria-label="Hexagon example">
+      <button type="button" id="hexagon-general">Hexagon: general construction</button>
+      <button type="button" id="hexagon-rhombi">Hexagon: three rhombi</button>
+    </div>
+    <p id="step-description" aria-live="polite"></p>
+    <div role="group" aria-label="Polygon editor">
+      <button type="button" id="start-polygon">Draw polygon</button>
+      <button type="button" id="undo-vertex" disabled>Undo vertex</button>
+      <button type="button" id="close-polygon" disabled>Close polygon</button>
+    </div>
+    <p id="editor-status" aria-live="polite"></p>
+    <svg id="drawing" viewBox="-0.5 -7.5 11 8" width="100%" role="img" aria-label="Rectangle divided into nine pieces"></svg>
+  </section>
   <script type="module" src="./src/demo.js"></script>
 </body>
 </html>

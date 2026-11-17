@@ -98,7 +98,7 @@ function drawPieces(pieces) {
 const steps = {
     original: {
         pieces: [{ vertices, originalEdge: null }],
-        description: "Original triangle, before cutting."
+        description: `${before.length} pieces. Dashed lines mark the original boundary`
     },
     cuts: {
         pieces: before,
@@ -113,6 +113,22 @@ const steps = {
 const buttons = document.querySelectorAll("button[data-step]");
 const description = document.querySelector("#step-description");
 
+const nextSwapButton = document.querySelector("#next-swap");
+let swapsDone = 0;
+
+function getSwapCount() {
+    const pieces = steps.cuts.pieces;
+    const n = steps.original.pieces[0].vertices.length;
+
+    const isGeneralConstruction =
+        pieces.length === 2 * n + 1 &&
+        pieces.slice(0, -1).every(piece =>
+            piece.vertices.length === 3 && piece.originalEdge
+        );
+
+    return isGeneralConstruction ? n : 0;
+}
+
 function showStep(name) {
     const step = steps[name];
 
@@ -123,6 +139,9 @@ function showStep(name) {
     buttons.forEach((button) => {
         button.setAttribute("aria-pressed", String(button.dataset.step === name));
     });
+
+    swapsDone = name === "after" ? getSwapCount() : 0;
+    nextSwapButton.disabled = name !== "cuts" || getSwapCount() === 0;
 }
 
 buttons.forEach((button) => {
@@ -130,6 +149,34 @@ buttons.forEach((button) => {
 });
 
 showStep("original");
+
+nextSwapButton.addEventListener("click", () => {
+    const total = getSwapCount();
+    if (swapsDone >= total) return;
+
+    swapsDone++;
+
+    if (swapsDone === total) {
+        showStep("after");
+        description.textContent = `Step ${total} of ${total}: reconstruction complete. ${steps.after.description}`;
+        svg.setAttribute("aria-label", description.textContent);
+        return;
+    }
+
+    // Each completed step replaces two pieces with their final positions.
+    const movedPieces = 2 * swapsDone;
+    const visiblePieces = steps.cuts.pieces.map((piece, index) =>
+        index < movedPieces ? steps.after.pieces[index] : piece
+    );
+
+    drawPieces(visiblePieces);
+
+    description.textContent = `Step ${swapsDone} of ${total}: the pair on side ${swapsDone} has been exchanged`;
+    svg.setAttribute("aria-label", description.textContent);
+    buttons.forEach(button => {
+        button.setAttribute("aria-pressed", "false");
+    });
+});
 
 const startButton = document.querySelector("#start-polygon");
 const undoButton = document.querySelector("#undo-vertex");
@@ -185,6 +232,8 @@ startButton.addEventListener("click", () => {
     drawing = true;
     draft.length = 0;
     buttons.forEach(button => { button.disabled = true; });
+    nextSwapButton.disabled = true;
+    
     description.textContent = "Draw a polygon by marking its vertices in order";
     svg.setAttribute("aria-label", "Polygon drawing canvas");
     drawDraft();
