@@ -371,3 +371,58 @@ export function buildHexagonRhombiDissection(vertices, center) {
 
     return { vertices, before, after };
 }
+
+// Expects regular vertices in counterclockwise order.
+export function buildRegularTwoEdgeDissection(vertices) {
+    const n = vertices.length;
+
+    if (![7, 8, 9].includes(n)) {
+        throw new Error("This construction supports 7, 8, or 9 sides.");
+    }
+
+    const chains = [];
+
+    // For odd n, reserve the last three sides for the split.
+    const limit = n % 2 === 0 ? n : n - 3;
+    for (let i = 0; i < limit; i += 2) {
+        chains.push([vertices[i], vertices[i + 1], vertices[(i + 2) % n]]);
+    }
+
+    if (n % 2 !== 0) {
+        const a = vertices[n - 2];
+        const b = vertices[n - 1];
+        const midpoint = {
+            x: (a.x + b.x) / 2,
+            y: (a.y + b.y) / 2
+        };
+
+        chains.push([vertices[n - 3], a, midpoint]);
+        chains.push([midpoint, b, vertices[0]]);
+    }
+
+    const before = [];
+    const after = [];
+    const centralVertices = [];
+
+    for (const [a, b, c] of chains) {
+        const d = { x: a.x + c.x - b.x, y: a.y + c.y - b.y };
+        const pivot = { x: (a.x + c.x) / 2, y: (a.y + c.y) / 2 };
+        const piece = {
+            vertices: [a, b, c, d],
+            originalEdges: [[0, 1], [1, 2]]
+        };
+
+        before.push(piece);
+        after.push(movePiece(piece, pivot, pivot, Math.PI));
+
+        // Central boundary follows A -> D -> C.
+        // C is the start of the next chain.
+        centralVertices.push(a, d);
+    }
+
+    const central = { vertices: centralVertices, originalEdge: null };
+    before.push(central);
+    after.push(central);
+
+    return { vertices, before, after };
+}

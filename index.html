@@ -84,19 +84,27 @@
     <header class="general-header">
       <p class="general-kicker">3. Regular polygons</p>
       <h2 id="regular-title">What does symmetry change?</h2>
-      <p>Compare two dissections of the same regular hexagon. The general method uses 13 pieces. The special construction uses three rhombi, each rotated by 180 degrees around its centre.</p>
+      <p>Compare two dissections of the same regular polygon. Follow the dashed segments to see how the original boundary moves to the interior</p>
     </header>
+
+    <label for="regular-sides">Regular polygon</label>
+    <select id="regular-sides">
+      <option value="6">Hexagon (6 sides)</option>
+      <option value="7">Heptagon (7 sides)</option>
+      <option value="8">Octagon (8 sides)</option>
+      <option value="9">Nonagon (9 sides)</option>
+    </select>
 
     <div class="general-buttons" role="group" aria-label="Hexagon construction">
       <button type="button" id="hexagon-general" aria-pressed="false">General construction</button>
-      <button type="button" id="hexagon-rhombi" aria-pressed="true">Three rhombi</button>
+      <button type="button" id="hexagon-rhombi" aria-pressed="true">Regular construction</button>
     </div>
 
     <div class="general-buttons regular-steps" role="group" aria-label="Hexagon dissection steps">
       <button type="button" data-regular-view="original">Original</button>
       <button type="button" data-regular-view="cuts">Cuts</button>
-      <button type="button" data-regular-view="after">Reconstruction</button>
       <button type="button" id="regular-next" disabled>Next step</button>
+      <button type="button" data-regular-view="after">Reconstruction</button>
     </div>
 
     <figure class="general-figure">
