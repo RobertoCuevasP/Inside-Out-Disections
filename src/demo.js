@@ -281,3 +281,77 @@ document.querySelector("#hexagon-rhombi").addEventListener("click", () => {
     const result = buildHexagonRhombiDissection(hexagon, hexagonCenter);
     showHexagonExample(result, "Three-rombus construction");
 });
+
+function initPentagonIntro() {
+    const introSvg = document.querySelector("#intro-drawing");
+    const cutsButton = document.querySelector("#intro-cuts");
+    const reconstructionButton = document.querySelector("#intro-reconstruction");
+    const status = document.querySelector("#intro-status");
+    const pentagon = Array.from({ length: 5 }, (_, i) => {
+        const angle = Math.PI / 2 + i * 2 * Math.PI / 5;
+        return { x: 3 * Math.cos(angle), y: 3 * Math.sin(angle) };
+    });
+
+    const edgeColors = [ "#60a5fa", "#fb923c", "#4ade80", "#c084fc", "#f472b6" ];
+
+    function addSvgElement(tag, attributes) {
+        const element = document.createElementNS(svgNamespace, tag);
+        for (const [name, value] of Object.entries(attributes)) {
+            element.setAttribute(name, String(value));
+        }
+        introSvg.append(element);
+    }
+
+    try {
+        const result = findValidPolygonDissection(pentagon);
+
+        if (!verifyReconstruction(result)) {
+            throw new Error("The reconstruction does not match the expected positions.");
+        }
+
+        function render(reconstructed) {
+            const pieces = reconstructed ? result.after : result.before;
+            introSvg.replaceChildren();
+
+            pieces.forEach((piece, index) => {
+                const hasOriginalEdges = getOriginalEdges(piece).length > 0;
+
+                addSvgElement("polygon", { 
+                    points: piece.vertices.map(({ x, y }) => `${x},${-y}`).join(" "),
+                    fill: hasOriginalEdges ? edgeColors[Math.floor(index / 2)] : "#e2e8f0",
+                    stroke: "#334155",
+                    "stroke-width": 0.03
+                });
+            });
+
+            for (const piece of pieces) {
+                for (const [i, j] of getOriginalEdges(piece)) {
+                    const a = piece.vertices[i];
+                    const b = piece.vertices[j];
+
+                    addSvgElement("line", {
+                        x1: a.x, y1: -a.y,
+                        x2: b.x, y2: -b.y,
+                        stroke: "#7f1d1d",
+                        "stroke-width": 0.06,
+                        "stroke-dasharray": "0.14 0.10"
+                    });
+                }
+            }
+
+            cutsButton.setAttribute("aria-pressed", String(!reconstructed));
+            reconstructionButton.setAttribute("aria-pressed", String(reconstructed));
+            status.textContent = reconstructed ? "Same outline. The marked segments now lie along internal cuts." : `${pieces.length} pieces. The dashed lines mark the original boundary.`;
+        }
+
+        cutsButton.addEventListener("click", () => render(false));
+        reconstructionButton.addEventListener("click", () => render(true));
+        render(false);
+    } catch (error) {
+        status.textContent = `Pentagon example unavailable: ${error.message}`;
+        cutsButton.disabled = true;
+        reconstructionButton.disabled = true;
+    }
+}
+
+initPentagonIntro();

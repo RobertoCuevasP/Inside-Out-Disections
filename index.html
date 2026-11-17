@@ -3,9 +3,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
   <title>Inside-out Dissection</title>
 </head>
 <body>
+  <section id="introduction" class="intro" aria-labelledby="intro-title">
+    <header>
+      <p class="intro-eyebrow">Computational Geometry - ULB</p>
+      <h1 id="intro-title">Inside-Out Dissections</h1>
+      <p>Can we cut a polygon into pieces and put them back together so that the original boundary moves to the interior?</p>
+      <p>An inside-out dissection does this with rotations and translations. The pieces form a congruent copy of the original polygon, but the new outline is made from segments that were originally internal cuts.</p>
+      <p>This project explores two results from Akpanya, Rivkin and Stock: a construction with at most 2n + 1 pieces for a simple polygon with n sides, and a bound of six pieces for regular polygons.
+        <a href="https://cccg-wads-2025.eecs.yorku.ca/cccg-papers/31.pdf">Read the paper (CCCG 2025)</a>.
+      </p>
+    </header>
+    <h2>Try a regular pentagon</h2>
+    <p id="intro-caption">This example uses the general construction: two triangular pieces per side and one central piece. Follow the dashed segments from
+      <strong>Cuts</strong> to <strong>Reconstruction</strong>.
+    </p>
+    <div class="intro-controls" role="group" aria-label="Pentagon example">
+      <button type="button" id="intro-cuts" aria-pressed="true">Cuts</button>
+      <button type="button" id="intro-reconstruction" aria-pressed="false">Reconstruction</button>
+    </div>
+    <p id="intro-status" aria-live="polite"></p>
+    <svg id="intro-drawing" viewBox="-4 -4 8 8" role="img"
+       aria-label="Inside-out dissection of a regular pentagon"
+       aria-describedby="intro-caption intro-status">
+      </svg>
+  </section>
+
+
   <h1>Inside-Out Dissection of a polygon</h1>
   <div role="group" aria-label="Disection steps">
     <legend>Dashed lines mark segments of the original boundary. Follow them from cuts to reconstruction</legend>
