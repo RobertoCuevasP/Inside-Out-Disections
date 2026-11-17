@@ -371,7 +371,3 @@ export function buildHexagonRhombiDissection(vertices, center) {
 
     return { vertices, before, after };
 }
-
-function getOriginalEdges(piece) {
-    return piece.originalEdges ?? (piece.originalEdge ? [piece.originalEdge] : []);
-}

@@ -2,7 +2,6 @@ import {
     buildPolygonDissection, 
     findValidPolygonDissection,
     verifyReconstruction,
-    getOriginalEdges,
     buildHexagonRhombiDissection
 } from "./geometry.js";
 
@@ -57,6 +56,9 @@ const colors = [
 const svg = document.querySelector("#drawing");
 const svgNamespace = "http://www.w3.org/2000/svg";
 
+function getOriginalEdges(piece) {
+    return piece.originalEdges ?? (piece.originalEdge ? [piece.originalEdge] : []);
+}
 
 function drawPieces(pieces) {
     svg.replaceChildren();
