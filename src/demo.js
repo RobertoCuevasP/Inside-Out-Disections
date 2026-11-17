@@ -1,25 +1,8 @@
 import { 
     buildPolygonDissection, 
-    findOverlappingTriangles,
-    findTriangleOutsidePolygon, 
-    isSimpleBoundary, 
-    findValidPolygonDissection, 
-    polygonArea,
+    findValidPolygonDissection,
     verifyReconstruction
 } from "./geometry.js";
-
-const triangle = [
-    { x: 0, y: 0 },
-    { x: 10, y: 0 },
-    { x: 3, y: 7}
-];
-
-const rectangle = [
-    { x: 0, y: 0 },
-    { x: 10, y: 0 },
-    { x: 10, y: 2 },
-    { x: 0, y: 2 }
-];
 
 const pentagon = [
     { x: 0, y: 0 },
@@ -49,28 +32,6 @@ const notchedPolygon = [
 
 const alpha = Math.atan2(7, 24);
 
-/*const results = [alpha, alpha / 2].map((angle) => {
-    const { before } = buildPolygonDissection(narrowRectangle, angle);
-    const pair = findOverlappingTriangles(before);
-    const degrees = (angle * 180 / Math.PI).toFixed(2);
-
-    return pair === null ? `${degrees} degrees: no triangle overlap detected` : `${degrees} degrees: pieces ${pair[0] + 1} and ${pair[1] + 1} overlap`;
-});*/
-
-/*const results = [alpha, alpha / 2].map((angle) => {
-    const { before } = buildPolygonDissection(notchedPolygon, angle);
-    const invalid = findTriangleOutsidePolygon(before, notchedPolygon);
-    const degrees = (angle * 180 / Math.PI).toFixed(2);
-
-    return invalid === null
-        ? `${degrees} degrees: all triangular pieces pass containment`
-        : `${degrees} degrees: piece ${invalid + 1} fails containment`;
-});*/
-
-/*const output = document.createElement("pre");
-output.textContent = results.join("\n");
-document.body.append(output);*/
-
 const { vertices, before, after } = buildPolygonDissection(pentagon, alpha);
 
 const central = before[before.length -1];
@@ -81,10 +42,6 @@ const crossedBoundary = [
     { x: 0, y: 4 },
     { x: 4, y: 0 },
 ];
-
-/*const boundaryOutput = document.createElement("pre");
-boundaryOutput.textContent = `Central boundary is simple ${isSimpleBoundary(central.vertices)}\n` + `Crossed boundary is simple: ${isSimpleBoundary(crossedBoundary)}`;
-document.body.append(boundaryOutput);*/
 
 const colors = [
     "#60a5fa", "#93c5fd",
@@ -172,40 +129,6 @@ buttons.forEach((button) => {
 });
 
 showStep("original");
-
-/*const angleOutput = document.createElement("pre");
-
-try {
-    const result = findValidPolygonDissection(narrowRectangle);
-
-    const lines = result.attempts.map(({ alpha, reason }) => {
-        const degrees = (alpha * 180 / Math.PI).toFixed(2);
-        return `${degrees} degrees: ${reason ?? "accepted"}`;
-    });
-
-    lines.push(`Pieces: ${result.before.length}`);
-    
-    const originalArea = polygonArea(result.vertices);
-    const totalArea = (pieces) => pieces.reduce(
-        (sum, piece) => sum + polygonArea(piece.vertices), 0
-    );
-
-    lines.push(`Original area: ${originalArea.toFixed(6)}`);
-    lines.push(`Pieces before: ${totalArea(result.before).toFixed(6)}`);
-    lines.push(`Pieces after: ${totalArea(result.after).toFixed(6)}`);
-    
-    lines.push(`Reconstruction matches: ${verifyReconstruction(result)}`);
-    const wrongAfter = [...result.after];
-    wrongAfter[0] = result.before[0];
-    lines.push(`Incorrect reconstruction matches: ${verifyReconstruction({ ...result, after: wrongAfter})}`);
-
-    angleOutput.textContent = lines.join("\n");
-} catch (error) {
-    angleOutput.textContent = `Dissection text: ${error.message}`;
-}
-
-document.body.append(angleOutput);
-*/
 
 const startButton = document.querySelector("#start-polygon");
 const undoButton = document.querySelector("#undo-vertex");
