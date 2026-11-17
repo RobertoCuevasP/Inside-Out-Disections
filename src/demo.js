@@ -235,7 +235,7 @@ closeButton.addEventListener("click", () => {
 });
 
 const hexagonCenter = { x: 5, y: 3.5 };
-const hexagon = Array.from({ length: 6}, (_, i) => {
+const hexagon = Array.from({ length: 6 }, (_, i) => {
     const angle = i * Math.PI / 3; 
     return {
         x: hexagonCenter.x + 3.5 * Math.cos(angle),
@@ -256,7 +256,7 @@ function showHexagonExample(result, label) {
     steps.cuts.pieces = result.before;
     steps.cuts.description = `${result.before.length} pieces. Dashed lines mark the original boundary`;
     
-    steps.after.pieces = result.before;
+    steps.after.pieces = result.after;
     steps.after.description = "The outline is unchanged. The marked segments now lie among internal cuts";
 
     showStep("original");
