@@ -360,7 +360,6 @@ function initPentagonIntro() {
 
 initPentagonIntro();
 
-
 const polygonCenter = { x: 5, y: 3.5 };
 function makeRegularPolygon(n) {
     return Array.from({ length: n }, (_, i) => {
@@ -378,7 +377,7 @@ const generalHexButton = document.querySelector("#hexagon-general");
 const rhombiHexButton = document.querySelector("#hexagon-rhombi");
 const regularNext = document.querySelector("#regular-next");
 const regularViewButtons = document.querySelectorAll("[data-regular-view]");
-const regularSides = documen.querySelector("#regular-sides");
+const regularSides = document.querySelector("#regular-sides");
 
 let regularResult;
 let regularMethod;
