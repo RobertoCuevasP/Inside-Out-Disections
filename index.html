@@ -3,15 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inside-out Dissection triangle test</title>
+  <title>Inside-out Dissection</title>
 </head>
 <body>
-  <h1>Inside-Out Dissection of a Rectangle</h1>
+  <h1>Inside-Out Dissection of a polygon</h1>
   <div role="group" aria-label="Disection steps">
     <legend>Dashed lines mark segments of the original boundary. Follow them from cuts to reconstruction</legend>
     <button type="button" data-step="original">Original</button>
     <button type="button" data-step="cuts">Cuts</button>
     <button type="button" data-step="after">Reconstruction</button>
+  </div>
+  <div role="group" aria-label="Hexagon example">
+    <button type="button" id="hexagon-general">Hexagon: general construction</button>
+    <button type="button" id="hexagon-rhombi">Hexagon: three rhombi</button>
   </div>
   <p id="step-description" aria-live="polite"></p>
   <div role="group" aria-label="Polygon editor">

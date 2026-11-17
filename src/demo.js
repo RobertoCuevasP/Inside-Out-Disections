@@ -1,7 +1,9 @@
 import { 
     buildPolygonDissection, 
     findValidPolygonDissection,
-    verifyReconstruction
+    verifyReconstruction,
+    getOriginalEdges,
+    buildHexagonRhombiDissection
 } from "./geometry.js";
 
 const pentagon = [
@@ -65,7 +67,7 @@ function drawPieces(pieces) {
         const points = piece.vertices.map(({ x, y }) => `${x}, ${-y}`).join(" ");
 
         polygon.setAttribute("points", points);
-        const fill = piece.originalEdge ? colors[index % (colors.length -1)] : "#e2e8f0";       
+        const fill = getOriginalEdges(piece).length > 0 ? colors[index % (colors.length -1)] : "#e2e8f0";       
         polygon.setAttribute("fill", fill);
         polygon.setAttribute("stroke", "#334155");
         polygon.setAttribute("stroke-width", "0.03");
@@ -74,22 +76,19 @@ function drawPieces(pieces) {
     });
 
     pieces.forEach((piece) => {
-        if (!piece.originalEdge) return;
-
-        const [i, j] = piece.originalEdge;
-        const start = piece.vertices[i];
-        const end = piece.vertices[j];
-
-        const line = document.createElementNS(svgNamespace, "line");
-        line.setAttribute("x1", start.x);
-        line.setAttribute("y1", -start.y);
-        line.setAttribute("x2", end.x);
-        line.setAttribute("y2", -end.y);
-        line.setAttribute("stroke", "#7f1d1d");
-        line.setAttribute("stroke-width", "0.08");
-        line.setAttribute("stroke-dasharray", "0.18 0.12");
-
-        svg.append(line);
+        for (const [i, j] of getOriginalEdges(piece)) {
+            const start = piece.vertices[i];
+            const end = piece.vertices[j];
+            const line = document.createElementNS(svgNamespace, "line");
+            line.setAttribute("x1", start.x);
+            line.setAttribute("y1", -start.y);
+            line.setAttribute("x2", end.x);
+            line.setAttribute("y2", -end.y);
+            line.setAttribute("stroke", "#7f1d1d");
+            line.setAttribute("stroke-width", "0.08");
+            line.setAttribute("stroke-dasharray", "0.18 0.12");
+            svg.append(line);
+        }
     });
 }
 
@@ -233,4 +232,50 @@ closeButton.addEventListener("click", () => {
     } catch (error) {
         editorStatus.textContent = `${error.message}. Undo a vertex or start again`;
     }
+});
+
+const hexagonCenter = { x: 5, y: 3.5 };
+const hexagon = Array.from({ length: 6}, (_, i) => {
+    const angle = i * Math.PI / 3; 
+    return {
+        x: hexagonCenter.x + 3.5 * Math.cos(angle),
+        y: hexagonCenter.y + 3.5 * Math.sin(angle)
+    };
+});
+
+function showHexagonExample(result, label) {
+    drawing = false;
+    draft.length = 0;
+    undoButton.disabled = true;
+    closeButton.disabled = true;
+    buttons.forEach(button => { button.disabled = false; });
+
+    steps.original.pieces = [{ vertices: result.vertices, originalEdge: null }];
+    steps.original.description = "Regular hexagon before cutting";
+
+    steps.cuts.pieces = result.before;
+    steps.cuts.description = `${result.before.length} pieces. Dashed lines mark the original boundary`;
+    
+    steps.after.pieces = result.before;
+    steps.after.description = "The outline is unchanged. The marked segments now lie among internal cuts";
+
+    showStep("original");
+    editorStatus.textContent = `${label}: ${result.before.length} pieces`;
+}
+
+document.querySelector("#hexagon-general").addEventListener("click", () => {
+    try {
+        const result = findValidPolygonDissection(hexagon);
+        if (!verifyReconstruction(result)) {
+            throw new Error("The pieces do not match their target positions");
+        }
+        showHexagonExample(result, "General construction");
+    } catch (error) {
+        editorStatus.textContent = error.message;
+    }
+});
+
+document.querySelector("#hegagon-rhombi").addEventListener("click" () => {
+    const result = buildHexagonRhombiDissection(hexagon, hexagonCenter);
+    showHexagonExample(result, "Three-rombus construction");
 });

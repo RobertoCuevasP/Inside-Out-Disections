@@ -345,3 +345,33 @@ export function verifyReconstruction({ vertices, before, after }, eps = 1e-9) {
     return centralBefore.length === centralAfter.length &&
         centralAfter.every((point, i) => samePoint(point, centralBefore[i]));
 }
+
+export function buildHexagonRhombiDissection(vertices, center) {
+    const before = [];
+    const after = [];
+
+    for (let i = 0; i < 6; i += 2) {
+        const first = vertices[i];
+        const middle = vertices[i + 1];
+        const last = vertices[(i + 2) % 6];
+
+        const piece = {
+            vertices: [center, first, middle, last],
+            originalEdges: [[1, 2], [2, 3]]
+        };
+
+        const pivot = {
+            x: (center.x + middle.x) / 2;
+            y: (center.y + middle.y) / 2;
+        }
+
+        before.push(piece);
+        after.push(movePiece(piece, pivot, pivot, Math.PI));
+    }
+
+    return { vertices, before, after };
+}
+
+function getOriginalEdges(piece) {
+    return piece.originalEdges ?? (piece.originalEdge ? [piece.originalEdge] : []);
+}
