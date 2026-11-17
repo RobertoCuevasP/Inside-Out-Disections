@@ -251,7 +251,7 @@ export function findValidPolygonDissection(inputVertices, initialAlpha = Math.at
     if (!Array.isArray(inputVertices) || inputVertices.length < 3 || 
         !inputVertices.every(p => p && Number.isFinite(p.x) && Number.isFinite(p.y))
         || !isSimpleBoundary(inputVertices)) {
-        throw new Error("THe input must be a simple polygon");
+        throw new Error("The input must be a simple polygon");
     }
       
     const origin = inputVertices[0];

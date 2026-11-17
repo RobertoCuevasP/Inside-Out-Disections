@@ -206,3 +206,14 @@
         grid-row: 1;
     }
 }
+
+.regular-steps {
+    margin: 0.75rem 0;
+}
+
+#regular-drawing {
+    display: block;
+    width: min(100%, 27rem);
+    height: auto;
+    margin-inline: auto;
+}

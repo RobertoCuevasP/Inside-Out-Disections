@@ -60,8 +60,8 @@ function getOriginalEdges(piece) {
     return piece.originalEdges ?? (piece.originalEdge ? [piece.originalEdge] : []);
 }
 
-function drawPieces(pieces) {
-    svg.replaceChildren();
+function drawPieces(pieces, target = svg) {
+    target.replaceChildren();
 
     pieces.forEach((piece, index) => {
         const polygon = document.createElementNS(svgNamespace, "polygon");
@@ -74,7 +74,7 @@ function drawPieces(pieces) {
         polygon.setAttribute("stroke", "#334155");
         polygon.setAttribute("stroke-width", "0.03");
 
-        svg.append(polygon);
+        target.append(polygon);
     });
 
     pieces.forEach((piece) => {
@@ -89,7 +89,7 @@ function drawPieces(pieces) {
             line.setAttribute("stroke", "#7f1d1d");
             line.setAttribute("stroke-width", "0.08");
             line.setAttribute("stroke-dasharray", "0.18 0.12");
-            svg.append(line);
+            target.append(line);
         }
     });
 }
@@ -285,52 +285,6 @@ closeButton.addEventListener("click", () => {
     }
 });
 
-const hexagonCenter = { x: 5, y: 3.5 };
-const hexagon = Array.from({ length: 6 }, (_, i) => {
-    const angle = i * Math.PI / 3; 
-    return {
-        x: hexagonCenter.x + 3.5 * Math.cos(angle),
-        y: hexagonCenter.y + 3.5 * Math.sin(angle)
-    };
-});
-
-function showHexagonExample(result, label) {
-    drawing = false;
-    draft.length = 0;
-    undoButton.disabled = true;
-    closeButton.disabled = true;
-    buttons.forEach(button => { button.disabled = false; });
-
-    steps.original.pieces = [{ vertices: result.vertices, originalEdge: null }];
-    steps.original.description = "Regular hexagon before cutting";
-
-    steps.cuts.pieces = result.before;
-    steps.cuts.description = `${result.before.length} pieces. Dashed lines mark the original boundary`;
-    
-    steps.after.pieces = result.after;
-    steps.after.description = "The outline is unchanged. The marked segments now lie among internal cuts";
-
-    showStep("original");
-    editorStatus.textContent = `${label}: ${result.before.length} pieces`;
-}
-
-document.querySelector("#hexagon-general").addEventListener("click", () => {
-    try {
-        const result = findValidPolygonDissection(hexagon);
-        if (!verifyReconstruction(result)) {
-            throw new Error("The pieces do not match their target positions");
-        }
-        showHexagonExample(result, "General construction");
-    } catch (error) {
-        editorStatus.textContent = error.message;
-    }
-});
-
-document.querySelector("#hexagon-rhombi").addEventListener("click", () => {
-    const result = buildHexagonRhombiDissection(hexagon, hexagonCenter);
-    showHexagonExample(result, "Three-rombus construction");
-});
-
 function initPentagonIntro() {
     const introSvg = document.querySelector("#intro-drawing");
     const cutsButton = document.querySelector("#intro-cuts");
@@ -404,3 +358,102 @@ function initPentagonIntro() {
 }
 
 initPentagonIntro();
+
+
+const hexagonCenter = { x: 5, y: 3.5 };
+const hexagon = Array.from({ length: 6 }, (_, i) => {
+    const angle = i * Math.PI / 3; 
+    return {
+        x: hexagonCenter.x + 3.5 * Math.cos(angle),
+        y: hexagonCenter.y + 3.5 * Math.sin(angle)
+    };
+});
+
+const regularSvg = document.querySelector("#regular-drawing");
+const regularStatus = document.querySelector("#hexagon-example");
+const generalHexButton = document.querySelector("#hexagon-general");
+const rhombiHexButton = document.querySelector("#hexagon-rhombi");
+const regularNext = document.querySelector("#regular-next");
+const regularViewButtons = document.querySelectorAll("[data-regular-view]");
+
+let regularResult;
+let regularMethod;
+let regularView = "cuts";
+let regularDone = 0;
+
+function renderRegular() {
+    const { vertices, before, after } = regularResult;
+    const groupSize = regularMethod === "general" ? 2 : 1;
+    const total = regularMethod === "general" ? vertices.length : before.length;
+    const label = regularMethod === "general" ? "General construction" : "Three-rhombus construction";
+
+    let pieces;
+    let message;
+
+    if (regularView === "original") {
+        pieces = [{ vertices, originalEdge: null }];
+        message = "The original regular hexagon.";
+    } else if (regularView === "after") {
+        pieces = after;
+        message = "Same outline. The marked segments lie along internal cuts.";
+    } else {
+        pieces = before.map((piece, index) =>
+            index < regularDone * groupSize ? after[index] : piece
+        );
+        const action = regularMethod === "general" ? "one pair exchanges positions" : "one rhombus rotates by 180 degrees";
+        message = regularDone === 0 ? `Dashed lines mark the original boundary. In each step, ${action}.` : `Step ${regularDone} of ${total}. Follow the dashed lines.`;
+    }
+
+    drawPieces(pieces, regularSvg);
+    regularStatus.textContent = `${label}: ${before.length} pieces. ${message}`;
+    regularNext.disabled = regularView !== "cuts" || regularDone >= total;
+
+    generalHexButton.setAttribute("aria-pressed", String(regularMethod === "general"));
+    rhombiHexButton.setAttribute("aria-pressed", String(regularMethod === "rhombi"));
+
+    regularViewButtons.forEach(button => {
+        const active = button.dataset.regularView === regularView &&
+            (regularView !== "cuts" || regularDone === 0);
+        button.setAttribute("aria-pressed", String(active));
+    });
+}
+
+function selectHexagonMethod(method) {
+    try {
+        const result = method === "general" ? findValidPolygonDissection(hexagon) : buildHexagonRhombiDissection(hexagon, hexagonCenter);
+
+        if (method === "general" && !verifyReconstruction(result)) {
+            throw new Error("The pieces do not match their target positions.");
+        }
+
+        regularResult = result;
+        regularMethod = method;
+        regularView = "cuts";
+        regularDone = 0;
+        renderRegular();
+    } catch (error) {
+        regularStatus.textContent = `Could not load this construction: ${error.message}`;
+    }
+}
+
+generalHexButton.addEventListener("click", () => selectHexagonMethod("general"));
+rhombiHexButton.addEventListener("click", () => selectHexagonMethod("rhombi"));
+
+regularViewButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        if (!regularResult) return;
+        regularView = button.dataset.regularView;
+        regularDone = 0;
+        renderRegular();
+    });
+});
+
+regularNext.addEventListener("click", () => {
+    if (!regularResult || regularView !== "cuts") return;
+    const total = regularMethod === "general" ? regularResult.vertices.length : regularResult.before.length;
+    regularDone++;
+    if (regularDone >= total) regularView = "after";
+    renderRegular();
+});
+
+selectHexagonMethod("rhombi");

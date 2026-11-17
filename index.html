@@ -78,15 +78,31 @@
         </figcaption>
       </figure>
     </div>
+  </section>
 
-    <div class="general-examples" role="group" aria-label="Hexagon examples">
-      <h3>Hexagon examples</h3>
-      <div class="general-buttons">
-        <button type="button" id="hexagon-general">Hexagon: general construction</button>
-        <button type="button" id="hexagon-rhombi">Hexagon: three rhombi</button>
-      </div>
-      <p id="hexagon-example" aria-live="polite"></p>
+  <section id="regular-polygons" class="demo-section" aria-labelledby="regular-title">
+    <header class="general-header">
+      <p class="general-kicker">3. Regular polygons</p>
+      <h2 id="regular-title">What does symmetry change?</h2>
+      <p>Compare two dissections of the same regular hexagon. The general method uses 13 pieces. The special construction uses three rhombi, each rotated by 180 degrees around its centre.</p>
+    </header>
+
+    <div class="general-buttons" role="group" aria-label="Hexagon construction">
+      <button type="button" id="hexagon-general" aria-pressed="false">General construction</button>
+      <button type="button" id="hexagon-rhombi" aria-pressed="true">Three rhombi</button>
     </div>
+
+    <div class="general-buttons regular-steps" role="group" aria-label="Hexagon dissection steps">
+      <button type="button" data-regular-view="original">Original</button>
+      <button type="button" data-regular-view="cuts">Cuts</button>
+      <button type="button" data-regular-view="after">Reconstruction</button>
+      <button type="button" id="regular-next" disabled>Next step</button>
+    </div>
+
+    <figure class="general-figure">
+      <svg id="regular-drawing" viewBox="1 -7.5 8 8" width="100%" role="img" aria-label="Regular hexagon" aria-describedby="hexagon-example"></svg>
+      <figcaption id="hexagon-example" aria-live="polite"></figcaption>
+    </figure>
   </section>
   <script type="module" src="./src/demo.js"></script>
 </body>
