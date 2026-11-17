@@ -275,7 +275,7 @@ document.querySelector("#hexagon-general").addEventListener("click", () => {
     }
 });
 
-document.querySelector("#hegagon-rhombi").addEventListener("click" () => {
+document.querySelector("#hegagon-rhombi").addEventListener("click", () => {
     const result = buildHexagonRhombiDissection(hexagon, hexagonCenter);
     showHexagonExample(result, "Three-rombus construction");
 });
