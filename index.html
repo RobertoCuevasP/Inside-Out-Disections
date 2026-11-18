@@ -9,7 +9,7 @@
 <body>
   <section id="introduction" class="intro" aria-labelledby="intro-title">
     <header>
-      <p class="intro-eyebrow">01 · Introduction · Computational Geometry — ULB</p>
+      <p class="intro-eyebrow">1. Introduction - Computational Geometry - ULB</p>
       <h1 id="intro-title">Inside-Out Dissections</h1>
       <p>Can we cut a polygon into pieces and put them back together so that the original boundary moves to the interior?</p>
       <p>An inside-out dissection does this with rotations and translations. The pieces form a congruent copy of the original polygon, but the new outline is made from segments that were originally internal cuts.</p>
@@ -18,7 +18,7 @@
       </p>
     </header>
     <h2>Start with a triangle</h2>
-    <p id="intro-caption">Aaron Meyerowitz’s construction cuts a triangle into two smaller triangles and two parallelograms. Follow the dashed segments from
+    <p id="intro-caption">Aaron Meyerowitz's construction cuts a triangle into two smaller triangles and two parallelograms. Follow the dashed segments from
       <strong>Cuts</strong> to <strong>Reconstruction</strong>.
     </p>
     <div class="intro-controls" role="group" aria-label="Four-piece triangle example">
@@ -35,7 +35,7 @@
       The triangles exchange positions by translation, and each parallelogram makes a half-turn.
     </p>
     <h2>From a triangle to a polygon</h2>
-    <p>A simple polygon with <var>n</var> vertices can be triangulated into <var>n</var> − 2 triangles without adding vertices. Rebuild each triangle inside out in its original position. Each original boundary edge lies on one of those triangles, so its marked segments move into the polygon’s interior.</p>
+    <p>A simple polygon with <var>n</var> vertices can be triangulated into <var>n</var> - 2 triangles without adding vertices. Rebuild each triangle inside out in its original position. Each original boundary edge lies on one of those triangles, so its marked segments move into the polygon’s interior.</p>
     <figure class="regular-diagram">
       <svg viewBox="0 0 270 135" role="img" aria-label="A pentagon divided by two diagonals from one vertex into three triangles">
         <g stroke="#334155" stroke-width="1.5">
@@ -47,14 +47,14 @@
           <text x="103" y="48">1</text><text x="149" y="62">2</text><text x="156" y="100">3</text>
         </g>
       </svg>
-      <figcaption>A pentagon gives three triangles, so this method uses at most 12 pieces. In general the bound is <strong>4(<var>n</var> − 2)</strong>.</figcaption>
+      <figcaption>A pentagon gives three triangles, so this method uses at most 12 pieces. In general the bound is <strong>4(<var>n</var> - 2)</strong>.</figcaption>
     </figure>
     <p><a href="#general-construction">Can we guarantee fewer pieces without triangulating first?</a></p>
   </section>
 
   <section id="general-construction" class="demo-section" aria-labelledby="general-title">
     <header class="general-header">
-      <p class="general-kicker">02 · The general construction</p>
+      <p class="general-kicker">2. The general construction</p>
       <h2 id="general-title">Two triangles per side</h2>
       <p>The edge-based construction improves the triangulation bound for five or more sides. For a pentagon, the two bounds are 11 and 12 pieces. Neither bound claims a minimum.</p>
       <p class="general-formula">
@@ -64,11 +64,11 @@
     </header>
     <h3>How a pair of pieces works</h3>
     <ol class="method-steps">
-      <li><strong>Construct the pair.</strong> For the directed edge A → B, let M be its midpoint. With the polygon oriented counterclockwise, rotate the vector AM about A by +α to get C, and BM about B by −α to get D. The two triangles are congruent by side–angle–side.</li>
-      <li><strong>Exchange the pair.</strong> Map A to B with a rotation of π − α, and use the inverse motion for its partner. The first piece’s marked segment AM maps to BD, which was an internal cut.</li>
+      <li><strong>Construct the pair.</strong> For the directed edge A -> B, let M be its midpoint. With the polygon oriented counterclockwise, rotate the vector AM about A by +α to get C, and BM about B by −α to get D. The two triangles are congruent by side–angle–side.</li>
+      <li><strong>Exchange the pair.</strong> Map A to B with a rotation of &pi; - &alpha;, and use the inverse motion for its partner. The first piece’s marked segment AM maps to BD, which was an internal cut.</li>
       <li><strong>Check the candidate.</strong> The editor checks that the input boundary is simple. For each candidate angle it checks containment of the triangles, overlap between triangles, and simplicity of the central boundary. It then checks that the moved pieces fit their intended positions.</li>
     </ol>
-    <p class="general-hint">The editor starts at about 16.26° and halves the angle when a candidate fails the cut checks, up to 20 attempts. In a narrow rectangle, pieces on opposite sides can overlap even if the corners leave room. In a polygon with a notch, a cut can leave the polygon even when its tip is inside. The implementation uses numerical tolerances; exhausting the search does not establish impossibility.</p>
+    <p class="general-hint">The editor starts at about 16.26 degrees and halves the angle when a candidate fails the cut checks, up to 20 attempts. In a narrow rectangle, pieces on opposite sides can overlap even if the corners leave room. In a polygon with a notch, a cut can leave the polygon even when its tip is inside. The implementation uses numerical tolerances; exhausting the search does not establish impossibility.</p>
     <div class="general-layout">
       <div class="general-controls">
         <div>
@@ -109,7 +109,7 @@
 
   <section id="regular-polygons" class="demo-section" aria-labelledby="regular-title">
     <header class="general-header">
-      <p class="general-kicker">03 · Regular polygons</p>
+      <p class="general-kicker">3. Regular polygons</p>
       <h2 id="regular-title">What does symmetry change?</h2>
       <p>Can symmetry reduce the number of pieces? Proposition 1 gives a six-piece upper bound for regular polygons. Start with the small cases, then compare both constructions on the same larger polygon.</p>
     </header>
@@ -134,7 +134,7 @@
           </g>
         </svg>
         <figcaption>
-          <strong> Square · 4 pieces.</strong> Rotate each small square 180 degrees about its own centre. Each piece keeps its position, but its two original outer sides now lie along the internal cross.
+          <strong> Square - 4 pieces.</strong> Rotate each small square 180 degrees about its own centre. Each piece keeps its position, but its two original outer sides now lie along the internal cross.
         </figcaption>
       </figure>
 
@@ -142,7 +142,7 @@
         <a href="https://cccg-wads-2025.eecs.yorku.ca/cccg-papers/31.pdf#page=1">See the triangle</a> - 
         <a href="https://cccg-wads-2025.eecs.yorku.ca/cccg-papers/31.pdf#page=3">See the pentagon</a>. 
       </p>
-      <h3>Grouping sides for n ≥ 6</h3>
+      <h3>Grouping sides for n &GreaterEqual; 6</h3>
       <p>Take a chain of consecutive sides and rotate it 180 degrees about the midpoint between its endpoints. The two chains enclose a piece with central symmetry. A half-turn exchanges the outer chain with the chain formed by internal cuts.</p>
       <figure class="regular-diagram">
         <svg viewBox="0 0 360 160" role="img" aria-label="A parallelogram with outer chain A, B, C and inner chain C, D, A. A half-turn about O maps A to C and B to D.">
@@ -210,10 +210,10 @@
     <ol>
       <li>Reymond Akpanya, Adi Rivkin, and Frederick Stock.
         <a href="https://cccg-wads-2025.eecs.yorku.ca/cccg-papers/31.pdf">Inside-Out Dissections of Polygons and Polyhedra</a>.
-        Proceedings of the 37th Canadian Conference on Computational Geometry, pp. 71–77, 2025.
+        Proceedings of the 37th Canadian Conference on Computational Geometry, pp. 71-77, 2025.
       </li>
       <li>Aaron Meyerowitz.
-        <a href="https://mathoverflow.net/questions/186332/inside-out-polygonal-dissections/186335#186335">Answer to “Inside-out polygonal dissections”</a>.
+        <a href="https://mathoverflow.net/questions/186332/inside-out-polygonal-dissections/186335#186335">Answer to "Inside-out polygonal dissections"</a>.
         MathOverflow, 2014. Source for the four-piece construction; the demo generates its own coordinates and drawing.
       </li>
     </ol>
