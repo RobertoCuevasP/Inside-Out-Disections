@@ -111,6 +111,68 @@
       <svg id="regular-drawing" viewBox="1 -7.5 8 8" width="100%" role="img" aria-label="Regular hexagon" aria-describedby="hexagon-example"></svg>
       <figcaption id="hexagon-example" aria-live="polite"></figcaption>
     </figure>
+
+    <div class="regular-explanation">
+      <h3>Small regular polygons</h3>
+      <p>Triangle, square and pentagon use separate constructions in Proposition 1. They satisfy the six-piece bound, but the rule for grouping sides below is used for polygons with six or more sides</p>
+      <figure class="regular-diagram">
+        <svg viewBox="0 0 360 136" role="img" aria-label="A square cut into four smaller squares. Before rotation, the marked segments are on the outside. After each piece rotates 180 degrees, those segments lie on the internal cross">
+          <g fill="#dbeafe" stroke="334155" stroke-width="1.5">
+            <rect x="30" y="10" width="100" height="100" />
+            <rect x="230" y="10" width="100" height="100"/>
+            <path d="M80 10V110 M30 60H130 M280 10V110 M230 60H330"/>
+          </g>
+          <g fill="none" stroke="#991b1b" stroke-width="3" stroke-dasharray="6 4">
+            <text x="80" y="130">Cuts</text>
+            <text x="280" y="130">Reconstruction</text>
+          </g>
+        </svg>
+        <figcaption>
+          <strong> Square - 4 pieces</strong> Rotate each small square 180 degrees about its own centre. Each piece keeps its position, but its two original outer sides now lie along the internal cross,
+        </figcaption>
+      </figure>
+
+      <p>The paper shows a four-piece triangle construction in Figure 1 and a separate pentagon construction in Figure 4.
+        <a href="https://cccg-wads-2025.eecs.yorku.ca/cccg-papers/31.pdf#page=1">See the triangle</a> - 
+        <a href="https://cccg-wads-2025.eecs.yorku.ca/cccg-papers/31.pdf#page=3">See the pentagon</a>. 
+        The interactive pentagon in the introduction uses the general construction instead.
+      </p>
+      <h3>Grouping sides for n >= 6</h3>
+      <p>Take a chain of consecutive sides and rotate it 180 degrees about the midpoint between its endpoints. The two chains enclose a piece with central symmetry. A half-turn exchanges the outer chain with the chain formed by internal cuts.</p>
+      <figure class="regular-diagram">
+        <svg viewBox="0 0 360 160" role="img" aria-label="A parallelogram with outer chain A, B, C and inner chain C, D, A. A half-turn about O maps A to C and B to D.">
+          <polygon points="55,80 150,25 275,80 180,135" fill="#dbeafe" stroke="#334155" stroke-width="2"/>
+          <path d="M55 80L150 25L275 80" fill="none" stroke="#991b1b" stroke-width="3" stroke-dasharray="6 4"/>
+          <path d="M55 80H275" fill="none" stroke="#64748b" stroke-dasharray="3 4"/>
+          <circle cx="165" cy="80" r="4" fill="#334155"/>
+          <g fill="#334155" text-anchor="middle">
+            <text x="40" y="85">A</text>
+            <text x="150" y="17">B</text>
+            <text x="291" y="85">C</text>
+            <text x="180" y="153">D</text>
+            <text x="165" y="104">O</text>
+          </g>
+        </svg>
+        <figcaption>
+          <strong>One piece, two chains.</strong> The half-turn about O sends A to C and B to D. The marked chain A-B-C moves to C-D-A.
+        </figcaption>
+      </figure>
+
+      <p>For a block of <var>k</var> full sides, the angle at either endof the piece is 2&pi; (<var>k</var> - 1)/<var>n</var>.
+        At a shared vertex, two neighbouring blocks must fit within the polygon's interior angle. Requiring each block to use at most half of that angle gives:
+      </p>
+      <p class="regular-bound">
+        <strong>k = &lfloor;(n + 2)/4x&rfloor;</strong><br>
+        <strong>Piece bound: &lceil;n/k&rceil; + 1 &GreaterEqual; 6</strong>
+      </p>
+      <p>
+        The extra piece accounts for the central region when one remains. This is an upper bound, not a minimum. For example, the hexagon needs no central piece in the three-rhombus construction. For the heptagon and nonagon, 
+        this demo splits one side at its midpoint to avoid a block made of a single straight segment.
+      </p>
+      <p>
+        <a href="https://cccg-wads-2025.eecs.yorku.ca/cccg-papers/31.pdf#page=3">Source: Akpanya, Rivkin and Stock, CCCG 2025, Proposition 1</a>.
+      </p>  
+    </div>
   </section>
   <script type="module" src="./src/demo.js"></script>
 </body>

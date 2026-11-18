@@ -217,3 +217,40 @@
     height: auto;
     margin-inline: auto;
 }
+
+.regular-explanation {
+    max-width: 44rem;
+    margin-top: 2rem;
+}
+
+.regular-explanation h3 {
+    margin-top: 1.75rem;
+}
+
+.regular-diagram {
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+}
+
+.regular-diagram svg {
+    display: block;
+    width: min(100%, 25rem);
+    height: auto;
+    margin-inline: auto;
+    font-family: system-ui, sans-serif;
+}
+
+.regular-diagram figcaption {
+    margin-top: 0.75rem;
+    color: #334155;
+}
+
+.regular-bound {
+    padding: 0.75rem 1rem;
+    border-left: 4px solid #1e3a8a;
+    background: #eff6ff;
+    line-height: 1.7;
+}
