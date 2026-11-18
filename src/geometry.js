@@ -61,59 +61,6 @@ export function swapEdgePair(pair, A, B, alpha) {
     ];
 }
 
-export function buildTriangleDissection(A, B, V, alpha) {
-    // Orientation calculus
-    const cross = (B.x - A.x) * (V.y - A.y) - (B.y - A.y) * (V.x - A.x);
-
-    if (cross === 0) {
-        throw new Error("The given vertices does not form a triangle.");
-    }
-
-    // We will go in anticlock order
-    const vertices = cross > 0 ? [A, B, V] : [A, V, B];
-
-    const angles = vertices.map((point, i) => {
-        const next = vertices[(i + 1) % 3];
-        const previous = vertices[(i + 2) % 3];
-
-        const ux = next.x - point.x;
-        const uy = next.y - point.y;
-        const vx = previous.x - point.x;
-        const vy = previous.y - point.y;
-
-        return Math.atan2(Math.abs(ux * vy - uy * vx), ux * vx + uy * vy);
-    });
-
-    if (!(alpha > 0 && 2 * alpha < Math.min(...angles))) {
-        throw new Error("The angle cut does not leave margin in the corners.");
-    }
-
-    const before = [];
-    const after = [];
-    const centralVertices = [];
-
-    for (let i = 0; i < 3; i++) {
-        const start = vertices[i];
-        const end = vertices[(i + 1) % 3];
-        const pair = buildEdgePair(start, end, alpha);
-
-        before.push(...pair.pieces);
-        after.push(...swapEdgePair(pair, start, end, alpha));
-
-        centralVertices.push(start, pair.C, pair.M, pair.D);
-    }
-
-    const central = {
-        vertices: centralVertices,
-        originalEdge: null
-    };
-
-    before.push(central);
-    after.push(central);
-
-    return { vertices, before, after };
-}
-
 export function buildPolygonDissection(vertices, alpha) {
     const before = [];
     const after = [];
@@ -304,7 +251,7 @@ export function findValidPolygonDissection(inputVertices, initialAlpha = Math.at
     if (!Array.isArray(inputVertices) || inputVertices.length < 3 || 
         !inputVertices.every(p => p && Number.isFinite(p.x) && Number.isFinite(p.y))
         || !isSimpleBoundary(inputVertices)) {
-        throw new Error("THe input must be a simple polygon");
+        throw new Error("The input must be a simple polygon");
     }
       
     const origin = inputVertices[0];
@@ -397,4 +344,85 @@ export function verifyReconstruction({ vertices, before, after }, eps = 1e-9) {
 
     return centralBefore.length === centralAfter.length &&
         centralAfter.every((point, i) => samePoint(point, centralBefore[i]));
+}
+
+export function buildHexagonRhombiDissection(vertices, center) {
+    const before = [];
+    const after = [];
+
+    for (let i = 0; i < 6; i += 2) {
+        const first = vertices[i];
+        const middle = vertices[i + 1];
+        const last = vertices[(i + 2) % 6];
+
+        const piece = {
+            vertices: [center, first, middle, last],
+            originalEdges: [[1, 2], [2, 3]]
+        };
+
+        const pivot = {
+            x: (center.x + middle.x) / 2,
+            y: (center.y + middle.y) / 2
+        }
+
+        before.push(piece);
+        after.push(movePiece(piece, pivot, pivot, Math.PI));
+    }
+
+    return { vertices, before, after };
+}
+
+// Expects regular vertices in counterclockwise order.
+export function buildRegularTwoEdgeDissection(vertices) {
+    const n = vertices.length;
+
+    if (![7, 8, 9].includes(n)) {
+        throw new Error("This construction supports 7, 8, or 9 sides.");
+    }
+
+    const chains = [];
+
+    // For odd n, reserve the last three sides for the split.
+    const limit = n % 2 === 0 ? n : n - 3;
+    for (let i = 0; i < limit; i += 2) {
+        chains.push([vertices[i], vertices[i + 1], vertices[(i + 2) % n]]);
+    }
+
+    if (n % 2 !== 0) {
+        const a = vertices[n - 2];
+        const b = vertices[n - 1];
+        const midpoint = {
+            x: (a.x + b.x) / 2,
+            y: (a.y + b.y) / 2
+        };
+
+        chains.push([vertices[n - 3], a, midpoint]);
+        chains.push([midpoint, b, vertices[0]]);
+    }
+
+    const before = [];
+    const after = [];
+    const centralVertices = [];
+
+    for (const [a, b, c] of chains) {
+        const d = { x: a.x + c.x - b.x, y: a.y + c.y - b.y };
+        const pivot = { x: (a.x + c.x) / 2, y: (a.y + c.y) / 2 };
+        const piece = {
+            vertices: [a, b, c, d],
+            originalEdges: [[0, 1], [1, 2]]
+        };
+
+        before.push(piece);
+        after.push(movePiece(piece, pivot, pivot, Math.PI));
+
+        // Central boundary follows A -> D -> C.
+        // C is the start of the next chain.
+        centralVertices.push(a, d);
+    }
+
+    const central = { vertices: centralVertices, originalEdge: null };
+    before.push(central);
+    after.push(central);
+
+    return { vertices, before, after };
 }
