@@ -1,88 +1,152 @@
-.intro {
-    max-width: 48rem;
-    margin: 0 auto 2rem;
-    padding: 1rem;
-    line-height: 1.5;
+:root {
+    --page-bg: #f1f5f9;
+    --surface: #ffffff;
+    --soft-bg: #f8fafc;
+    --ink: #1e293b;
+    --muted: #475569;
+    --accent: #1e3a8a;
+    --accent-soft: #eff6ff;
+    --border: #cbd5e1;
 }
 
-.intro-eyebrow {
-    margin-bottom: 0.25rem;
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 1rem;
+    background: var(--page-bg);
+    color: var(--ink);
+    font-family: system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.intro,
+.demo-section {
+    max-width: 68rem;
+    margin: 0 auto 1.5rem;
+    padding: clamp(1rem, 3vw, 2rem);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: var(--surface);
+}
+
+h1,
+h2,
+h3 {
+    line-height: 1.2;
+}
+
+h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(2rem, 6vw, 3rem);
+}
+
+h2 {
+    margin: 0 0 1rem;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+}
+
+h3 {
+    margin: 1.5rem 0 0.75rem;
+    font-size: 1.15rem;
+}
+
+p {
+    margin: 0 0 1rem;
+}
+
+a {
+    color: var(--accent);
+    text-underline-offset: 0.2em;
+}
+
+.intro header,
+.general-header,
+.regular-explanation {
+    max-width: 48rem;
+}
+
+.intro-eyebrow,
+.general-kicker {
+    margin-bottom: 0.5rem;
+    color: var(--accent);
     font-size: 0.9rem;
     font-weight: 600;
 }
 
-.intro h1 {
-    margin-top: 0;
-}
-
-.intro-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.intro-controls button {
-    min-height: 44px;
-    padding: 0.4rem 0.8rem;
-}
-
-.intro-controls button[aria-pressed="true"] {
-    background: #1e3a8a;
-    color: #fff;
-    border-color: #1e3a8a;
-}
-
-#intro-drawing {
-    display: block;
-    width: min(100%, 26rem);
-    height: auto;
-    margin-inline: auto;
-}
-
-.demo-section {
-    --general-ink: #1e293b;
-    --general-muted: #475569;
-    --general-accent: #1e3a8a;
-    --general-border: #cbd5e1;
-
-    max-width: 68rem;
-    margin: 0 auto 2rem;
-    padding: 1.5rem 1rem;
-    color: var(--general-ink);
-    font-family: system-ui, sans-serif;
-    line-height: 1.5;
-}
-
 .general-header {
-    max-width: 44rem;
     margin-bottom: 1.5rem;
 }
 
-.general-kicker {
-    margin-bottom: 0.25rem;
-    color: var(--general-accent);
+.intro-controls,
+.general-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+button,
+select {
+    min-height: 44px;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid #64748b;
+    border-radius: 0.5rem;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:not(:disabled):hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+}
+
+button[aria-pressed="true"],
+#next-swap:not(:disabled),
+#regular-next:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #ffffff;
+}
+
+button[aria-pressed="true"]:hover,
+#next-swap:not(:disabled):hover,
+#regular-next:not(:disabled):hover {
+    background: #172e70;
+    color: #ffffff;
+}
+
+button:disabled {
+    border-color: var(--border);
+    background: #f1f5f9;
+    color: #64748b;
+    cursor: default;
+}
+
+button:focus-visible,
+select:focus-visible,
+a:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 3px;
+}
+
+label[for="regular-sides"] {
+    display: block;
+    margin-bottom: 0.4rem;
     font-weight: 600;
 }
 
-.general-header h2 {
-    margin: 0;
-    font-size: clamp(1.7rem, 4vw, 2.5rem);
-    line-height: 1.15;
-}
-
-.general-formula {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.35rem 0.75rem;
-    color: var(--general-muted);
-}
-
-.general-formula strong {
-    padding: 0.25rem 0.65rem;
-    border-radius: 0.35rem;
-    background: #dbeafe;
-    color: var(--general-accent);
+#regular-sides {
+    max-width: 100%;
+    margin-bottom: 1rem;
 }
 
 .general-layout {
@@ -94,70 +158,70 @@
     display: grid;
     align-content: start;
     gap: 1rem;
+    min-width: 0;
 }
 
 .general-controls > div,
-.general-figure {
+.general-figure,
+.regular-diagram {
+    min-width: 0;
     margin: 0;
     padding: 1rem;
-    border: 1px solid var(--general-border);
+    border: 1px solid var(--border);
     border-radius: 0.75rem;
 }
 
 .general-controls > div {
-    background: #f8fafc;
+    background: var(--soft-bg);
 }
 
-.general-controls h3,
-.general-examples h3 {
-    margin: 0 0 0.65rem;
-    font-size: 1.05rem;
+.general-controls h3 {
+    margin-top: 0;
 }
 
-.general-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+.general-figure {
+    background: var(--surface);
 }
 
-.general-buttons button {
-    min-height: 44px;
-    padding: 0.4rem 0.75rem;
-    border: 1px solid #64748b;
-    border-radius: 0.4rem;
-    background: #fff;
-    color: var(--general-ink);
-    font: inherit;
+#intro-drawing,
+#drawing,
+#regular-drawing {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-inline: auto;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--soft-bg);
 }
 
-.general-buttons button[aria-pressed="true"],
-.general-buttons #next-swap:not(:disabled) {
-    border-color: var(--general-accent);
-    background: var(--general-accent);
-    color: #fff;
+#intro-drawing,
+#regular-drawing {
+    max-width: 30rem;
 }
 
-.general-buttons button:disabled {
-    border-color: var(--general-border);
-    background: #f1f5f9;
-    color: #64748b;
+#intro-drawing {
+    margin-top: 1rem;
 }
 
-.general-buttons button:focus-visible {
-    outline: 3px solid #2563eb;
-    outline-offset: 2px;
-}
-
-.general-hint,
-.general-legend {
-    color: var(--general-muted);
-    font-size: 0.9rem;
-}
-
+#intro-status,
+#step-description,
 #editor-status,
-#step-description {
-    font-weight: 600;
+#hexagon-example {
     overflow-wrap: anywhere;
+    font-weight: 600;
+}
+
+#intro-status,
+#editor-status {
+    padding: 0.75rem;
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+}
+
+#step-description,
+#hexagon-example {
+    margin: 0.75rem 0;
 }
 
 #editor-status:empty,
@@ -165,14 +229,15 @@
     display: none;
 }
 
-#general-construction #drawing {
-    display: block;
-    width: 100%;
-    height: auto;
-    box-sizing: border-box;
-    border: 1px solid var(--general-border);
-    border-radius: 0.4rem;
-    background: #f8fafc;
+.general-hint,
+.general-legend,
+figcaption {
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.general-hint {
+    margin: 0.75rem 0 0;
 }
 
 .general-legend {
@@ -186,13 +251,58 @@
     border-top: 3px dashed #7f1d1d;
 }
 
-.general-examples {
+.regular-steps {
+    margin: 1rem 0;
+}
+
+.regular-explanation {
+    margin-top: 2rem;
+}
+
+.regular-diagram {
+    margin: 1rem 0 1.5rem;
+    background: var(--soft-bg);
+}
+
+.regular-diagram svg {
+    display: block;
+    width: min(100%, 25rem);
+    height: auto;
+    margin-inline: auto;
+}
+
+.regular-diagram figcaption {
     margin-top: 1rem;
 }
 
-@media (min-width: 52rem) {
+.general-formula {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 0.75rem;
+    color: var(--muted);
+}
+
+.general-formula strong,
+.regular-bound {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.general-formula strong {
+    padding: 0.3rem 0.7rem;
+    border-radius: 0.4rem;
+}
+
+.regular-bound {
+    padding: 1rem;
+    border-left: 4px solid var(--accent);
+    line-height: 1.8;
+}
+
+@media (min-width: 60rem) {
     .general-layout {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 18rem);
+        grid-template-columns: minmax(0, 1fr) 20rem;
         align-items: start;
     }
 
@@ -207,50 +317,19 @@
     }
 }
 
-.regular-steps {
-    margin: 0.75rem 0;
-}
+@media (max-width: 35rem) {
+    body {
+        padding: 0.5rem;
+    }
 
-#regular-drawing {
-    display: block;
-    width: min(100%, 27rem);
-    height: auto;
-    margin-inline: auto;
-}
+    .intro,
+    .demo-section {
+        padding: 1rem;
+        border-radius: 0.75rem;
+    }
 
-.regular-explanation {
-    max-width: 44rem;
-    margin-top: 2rem;
-}
-
-.regular-explanation h3 {
-    margin-top: 1.75rem;
-}
-
-.regular-diagram {
-    margin: 1rem 0;
-    padding: 1rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 0.75rem;
-    background: #f8fafc;
-}
-
-.regular-diagram svg {
-    display: block;
-    width: min(100%, 25rem);
-    height: auto;
-    margin-inline: auto;
-    font-family: system-ui, sans-serif;
-}
-
-.regular-diagram figcaption {
-    margin-top: 0.75rem;
-    color: #334155;
-}
-
-.regular-bound {
-    padding: 0.75rem 1rem;
-    border-left: 4px solid #1e3a8a;
-    background: #eff6ff;
-    line-height: 1.7;
+    .intro-controls button,
+    .general-buttons button {
+        flex: 1 1 auto;
+    }
 }
