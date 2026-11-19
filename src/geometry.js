@@ -479,3 +479,66 @@ export function buildRegularPentagonDissection(radius = 3.5) {
     const centre = { vertices: inner, originalEdges: [] };
     return { vertices, before: [...before, centre], after: [...after, centre] };
 }
+
+
+// Expects the vertices of a regular polygon in counterclockwise order.
+export function buildRegularGroupedDissection(vertices) {
+    const n = vertices.length;
+    const groupsBySideCount = {
+        10: [3, 2, 3, 2],
+        11: [3, 3, 3, 2],
+        12: [3, 3, 3, 3],
+        13: [3, 3, 3, 2, 2],
+        14: [4, 3, 4, 3]
+    };
+
+    const groups = groupsBySideCount[n];
+    if (!groups) {
+        throw new Error("This construction supports 10 to 14 sides.");
+    }
+
+    const before = [];
+    const after = [];
+    const centralVertices = [];
+    let start = 0;
+
+    for (const size of groups) {
+        // A chain of size sides contains size + 1 vertices.
+        const chain = Array.from({ length: size + 1 }, (_, i) =>
+            vertices[(start + i) % n]
+        );
+
+        const a = chain[0];
+        const b = chain[size];
+        const pivot = {
+            x: (a.x + b.x) / 2,
+            y: (a.y + b.y) / 2
+        };
+
+        // A half-turn swaps the endpoints, so only the intermediate
+        // vertices need to be added to close the piece.
+        const inner = chain.slice(1, -1).map(point => ({
+            x: 2 * pivot.x - point.x,
+            y: 2 * pivot.y - point.y
+        }));
+
+        const piece = {
+            vertices: [...chain, ...inner],
+            originalEdges: chain.slice(1).map((_, i) => [i, i + 1])
+        };
+
+        before.push(piece);
+        after.push(movePiece(piece, pivot, pivot, Math.PI));
+
+        // The centre follows the inner chain from a to b.
+        // The next group adds b as its starting point.
+        centralVertices.push(a, ...inner.slice().reverse());
+        start += size;
+    }
+
+    const central = { vertices: centralVertices, originalEdge: null };
+    before.push(central);
+    after.push(central);
+
+    return { vertices, before, after, groups };
+}

@@ -1,4 +1,4 @@
-import { findValidPolygonDissection, verifyReconstruction, buildHexagonRhombiDissection, buildRegularTwoEdgeDissection } from "./geometry.js";
+import { findValidPolygonDissection, verifyReconstruction, buildHexagonRhombiDissection, buildRegularTwoEdgeDissection, buildRegularGroupedDissection } from "./geometry.js";
 import { drawPieces, getOriginalEdges } from "./render.js";
 
 export function initRegularDemo() {
@@ -56,7 +56,9 @@ export function initRegularDemo() {
         }
 
         drawPieces(pieces, regularSvg);
-        regularStatus.textContent = `${label}: ${before.length} pieces. ${message}`;
+        const grouping = regularResult.groups ? ` Boundary groups: ${regularResult.groups.join(" + ")}.` : "";
+
+        regularStatus.textContent = `${label}: ${before.length} pieces.${grouping} ${message}`;
         regularNext.disabled = regularView !== "cuts" || regularDone >= total;
 
         generalHexButton.setAttribute("aria-pressed", String(regularMethod === "general"));
@@ -74,10 +76,16 @@ export function initRegularDemo() {
             const n = Number(regularSides.value);
             const vertices = makeRegularPolygon(n);
 
-            const result = method === "general" ? 
-                findValidPolygonDissection(vertices) : n === 6 ?
-                    buildHexagonRhombiDissection(vertices, polygonCenter) : buildRegularTwoEdgeDissection(vertices);
-
+            let result;
+            if (method === "general") {
+                result = findValidPolygonDissection(vertices);
+            } else if (n === 6) {
+                result = buildHexagonRhombiDissection(vertices, polygonCenter);
+            } else if (n <= 9) {
+                result = buildRegularTwoEdgeDissection(vertices);
+            } else {
+                result = buildRegularGroupedDissection(vertices);
+            }
 
             if (method === "general" && !verifyReconstruction(result)) {
                 throw new Error("The pieces do not match their target positions.");
