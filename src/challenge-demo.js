@@ -6,6 +6,7 @@ import {
 import { drawPieces, svgNamespace } from "./render.js";
 
 export function initChallengeDemo() {
+    
     const svg = document.querySelector("#challenge-drawing");
     const status = document.querySelector("#challenge-status");
     const check = document.querySelector("#challenge-check");
@@ -21,7 +22,7 @@ export function initChallengeDemo() {
     function configurePolygon() {
         n = Number(sidesInput.value);
         const maxSize = Math.floor((n + 2) / 4);
-        requiredMarks = Math.cell(n / maxSize);
+        requiredMarks = Math.ceil(n / maxSize);
 
         vertices = Array.from({ length: n }, (_, i) => {
             const angle = Math.PI / 2 + i * 2 * Math.PI / n;
