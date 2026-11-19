@@ -1,4 +1,10 @@
-import { findValidPolygonDissection, verifyReconstruction, buildHexagonRhombiDissection, buildRegularTwoEdgeDissection, buildRegularGroupedDissection } from "./geometry.js";
+import {
+    findValidPolygonDissection,
+    verifyReconstruction,
+    buildHexagonRhombiDissection,
+    buildRegularTwoEdgeDissection,
+    buildRegularGroupedDissection
+} from "./geometry.js";
 import { drawPieces, getOriginalEdges } from "./render.js";
 
 export function initRegularDemo() {
