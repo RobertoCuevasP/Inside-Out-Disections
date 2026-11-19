@@ -446,6 +446,17 @@ export function buildRegularGroupedDissection(vertices) {
         groups = [...Array((n - 3) / 2).fill(2), 1.5, 1.5];
     }
 
+    return buildRegularDissectionFromGroups(vertices, groups);
+}
+
+export function buildRegularDissectionFromGroups(vertices, groups) {
+    
+    const n = vertices.length;
+
+    if (groups.length < 2 || groups.some(size => !Number.isFinite(size) || size <= 1) || Math.abs(groups.reduce((sum, size) => sum + size, 0) - n) > 1e-9) {
+        throw new Error("The groups must cover the perimeter exactly.");
+    }
+
     function pointOnPerimeter(t) {
         const i = Math.floor(t);
         const fraction = t - i;
@@ -508,4 +519,70 @@ export function buildRegularGroupedDissection(vertices) {
     after.push(central);
 
     return { vertices, before, after, groups };
+}
+
+export function checkRegularChallenge(vertices, groups) {
+    const maxSize = Math.floor((vertices.length + 2) / 4);
+
+    if (groups.some(size => !Number.isInteger(size) || size < 2 || size > maxSize)) {
+        throw new Error(`Each group must contain 2 to ${maxSize} sides.`);
+    }
+
+    const result = buildRegularDissectionFromGroups(vertices, groups);
+    const outer = result.before.slice(0, -1);
+    const central = result.before[result.before.length - 1];
+    const eps = 1e-9;
+
+    if (!isSimpleBoundary(central.vertices)) {
+        throw new Error("The cuts pinch the central piece. Try separating the longer groups.");
+    }
+
+    const edges = points => points.map((a, i) => [a, points[(i + 1) % points.length]]);
+    const cross = (a, b, p) =>
+        (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+    const boundary = edges(vertices);
+
+    if (result.before.some(piece =>
+        !isSimpleBoundary(piece.vertices) ||
+        piece.vertices.some(p => boundary.some(([a, b]) => cross(a, b, p) < -eps))
+    )) {
+        throw new Error("A piece crosses the polygon boundary.");
+    }
+
+    // The exterior pieces are convex: look for a separating axis.
+    function overlaps(p, q) {
+        return [...edges(p), ...edges(q)].every(([a, b]) => {
+            const x = p.map(v => cross(a, b, v));
+            const y = q.map(v => cross(a, b, v));
+            return Math.min(Math.max(...x), Math.max(...y)) -
+                Math.max(Math.min(...x), Math.min(...y)) > eps;
+        });
+    }
+
+    if (outer.some((p, i) =>
+        outer.slice(i + 1).some(q => overlaps(p.vertices, q.vertices))
+    )) {
+        throw new Error("Two of the exterior pieces overlap.");
+    }
+
+    const area = result.before.reduce((sum, p) => sum + polygonArea(p.vertices), 0);
+    if (Math.abs(area - polygonArea(vertices)) > 1e-8) {
+        throw new Error("The pieces do not cover the polygon exactly.");
+    }
+
+    for (const piece of result.after.slice(0, -1)) {
+        for (const [i, j] of piece.originalEdges) {
+            const a = piece.vertices[i];
+            const b = piece.vertices[j];
+            const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+
+            // In a convex polygon, this rules out a marked segment
+            // lying along an outer side. Its endpoints may touch.
+            if (boundary.some(([u, v]) => cross(u, v, mid) <= eps)) {
+                throw new Error("A marked segment does not move into the interior.");
+            }
+        }
+    }
+
+    return result;
 }

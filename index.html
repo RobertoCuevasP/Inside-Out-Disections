@@ -212,6 +212,20 @@
       <figcaption id="hexagon-example" aria-live="polite"></figcaption>
     </figure>
   </section>
+  <section id="challenge" class="demo-section" aria-labelledby="challenge-title">
+    <h2 id="challenge-title">4. Can you group the perimeter?</h2>
+    <p>Mark four vertices of the regular decagon. Each mark starts a group, and each group must contain two or three sides. Can you arrange the groups so that the cuts leave one simple central piece?</p>
+    <figure class="general-figure">
+      <svg id="challenge-drawing" viewBox="-4 -4 8 8" width="100%" aria-label="Decagon with selectable vertices"></svg>
+      <figcaption id="challenge-status" aria-live="polite"></figcaption>
+    </figure>
+
+    <div class="general-buttons" role="group" aria-label="Challenge controls">
+      <button type="button" id="challenge-check" disabled>Check cuts</button>
+      <button type="button" id="challenge-reconstruct" disabled>Reconstruction</button>
+      <button type="button" id="challenge-reset">Reset</button>
+    </div>
+  </section>
   <section id="references" class="demo-section" aria-labelledby="references-title">
     <h2 id="references-title">References</h2>
     <ol>
