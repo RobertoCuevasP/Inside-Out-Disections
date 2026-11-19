@@ -364,3 +364,20 @@ figcaption {
 .regular-size-form button {
     min-height: 44px;
 }
+
+.regular-size-form {
+    align-items: center;
+}
+
+.regular-size-form > label,
+.regular-size-form > input,
+.regular-size-form > button {
+    margin: 0;
+}
+
+.regular-size-form > input,
+.regular-size-form > button {
+    box-sizing: border-box;
+    height: 44px;
+    font: inherit;
+}
