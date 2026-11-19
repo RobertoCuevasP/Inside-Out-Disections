@@ -363,10 +363,6 @@ figcaption {
     min-height: 44px;
 }
 
-.regular-size-form {
-    align-items: center;
-}
-
 .regular-size-form > label,
 .regular-size-form > input,
 .regular-size-form > button {
@@ -391,6 +387,10 @@ figcaption {
     stroke: #334155;
     stroke-width: 0.05;
     cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .challenge-vertex[aria-pressed="true"] {
@@ -401,13 +401,6 @@ figcaption {
 .challenge-vertex:focus-visible {
     stroke: #111827;
     stroke-width: 0.09;
-}
-
-.challenge-vertex {
-    touch-action: manipulation;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
 }
 
 .challenge-vertex--pinch[aria-pressed="true"] {

@@ -68,7 +68,7 @@
       <li><strong>Exchange the pair.</strong> Map A to B with a rotation of &pi; - &alpha;, and use the inverse motion for its partner. The first piece's marked segment AM maps to BD, which was an internal cut.</li>
       <li><strong>Check the candidate.</strong> The editor checks that the input boundary is simple. For each candidate angle it checks containment of the triangles, overlap between triangles, and simplicity of the central boundary. It then checks that the moved pieces fit their intended positions.</li>
     </ol>
-    <p class="general-hint">The editor starts at about 16.26 degrees, whay? The first trial uses &alpha; = arctan(7/24). For a side of length L, the cut tip lies (L/2) sin &alpha; inward from that side. Since sin &alpha; = 7/25, this starts with a cut depth of 14% of the side length. This makes the first cuts visible and gives a consistent starting point across scales. The editor halves the angle when a candidate fails the cut checks, up to 20 attempts. In a narrow rectangle, pieces on opposite sides can overlap even if the corners leave room. In a polygon with a notch, a cut can leave the polygon even when its tip is inside. The implementation uses numerical tolerances; exhausting the search does not establish impossibility.</p>
+    <p class="general-hint">The editor starts at about 16.26 degrees, why? The first trial uses &alpha; = arctan(7/24). For a side of length L, the cut tip lies (L/2) sin &alpha; inward from that side. Since sin &alpha; = 7/25, this starts with a cut depth of 14% of the side length. This makes the first cuts visible and gives a consistent starting point across scales. The editor halves the angle when a candidate fails the cut checks, up to 20 attempts. In a narrow rectangle, pieces on opposite sides can overlap even if the corners leave room. In a polygon with a notch, a cut can leave the polygon even when its tip is inside. The implementation uses numerical tolerances; exhausting the search does not establish impossibility.</p>
     <div class="general-layout">
       <div class="general-controls">
         <div>
@@ -188,7 +188,6 @@
     </div>
     <h3>Compare the methods</h3>
     <p>The selector covers the cases implemented in this demo: 6 to 60 sides. The counter reports the number of pieces drawn, which can be smaller than the theoretical bound.</p>
-    <label for="regular-sides">Regular polygon</label>
     <form id="regular-size-form" class="regular-size-form">
       <label for="regular-sides">Number of sides</label>
       <input id="regular-sides" name="sides" type="number" min="6" max="60" step="1" value="6" required>
