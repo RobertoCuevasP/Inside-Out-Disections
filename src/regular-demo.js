@@ -81,7 +81,7 @@ export function initRegularDemo() {
         try {
             const n = Number(regularSides.value);
             const vertices = makeRegularPolygon(n);
-
+            throw new Error(`Number con vertices:${n}`);
             let result;
             if (method === "general") {
                 result = findValidPolygonDissection(vertices);
