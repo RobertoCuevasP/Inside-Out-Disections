@@ -6,18 +6,34 @@ import {
 import { drawPieces, svgNamespace } from "./render.js";
 
 export function initChallengeDemo() {
-    const n = 10;
-    const requiredMarks = 4;
-    const vertices = Array.from({ length: n }, (_, i) => {
-        const angle = Math.PI / 2 + i * 2 * Math.PI / n;
-        return { x: 3 * Math.cos(angle), y: 3 * Math.sin(angle) };
-    });
-
     const svg = document.querySelector("#challenge-drawing");
     const status = document.querySelector("#challenge-status");
     const check = document.querySelector("#challenge-check");
     const reconstruct = document.querySelector("#challenge-reconstruct");
     const reset = document.querySelector("#challenge-reset");
+    const sidesInput = document.querySelector("#challenge-sides");
+    const instructions = document.querySelector("#challenge-instructions");
+
+    let n;
+    let requiredMarks;
+    let vertices;
+
+    function configurePolygon() {
+        n = Number(sidesInput.value);
+        const maxSize = Math.floor((n + 2) / 4);
+        requiredMarks = Math.cell(n / maxSize);
+
+        vertices = Array.from({ length: n }, (_, i) => {
+            const angle = Math.PI / 2 + i * 2 * Math.PI / n;
+            return { x: 3 * Math.cos(angle), y: 3 * Math.sin(angle) };
+        });
+
+        const groupRule = maxSize === 2 ? "Each group must contain exactly 2 sides." : `Each group must contain 2 to ${maxSize} sides.`;
+
+        instructions.textContent = `Mark ${requiredMarks} vertices. Each mark starts a group. ${groupRule} Can you leave one simple central piece?`;
+
+        svg.setAttribute("aria-label", `Regular polygon with ${n} selectable vertices`);
+    }
 
     const marks = new Set();
     let result = null;
@@ -140,7 +156,7 @@ export function initChallengeDemo() {
         const prefix = `Groups: ${selectedGroups().join(" + ")}.`;
         const message = feedback ? `${reconstructed ? "Rotation preview only. " : ""}${feedback}` : reconstructed
             ? "The original boundary now lies along internal cuts." : result
-                ? "Valid cuts: four exterior pieces and one central piece." : "Check whether these groups fit.";
+                ? `Valid cuts: ${result.before.length - 1} exterior pieces and one central piece.` : "Check whether these groups fit.";
 
         status.textContent = `${prefix} ${message}`;
     }
@@ -207,5 +223,17 @@ export function initChallengeDemo() {
         render();
     });
 
+    sidesInput.addEventListener("change", () => {
+        marks.clear();
+        result = null;
+        reconstructed = false;
+        feedback = "";
+        pinchMarks.clear();
+
+        configurePolygon();
+        render();
+    });
+
+    configurePolygon();
     render();
 }

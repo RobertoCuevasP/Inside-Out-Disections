@@ -213,8 +213,16 @@
     </figure>
   </section>
   <section id="challenge" class="demo-section" aria-labelledby="challenge-title">
-    <h2 id="challenge-title">4. Can you group the perimeter?</h2>
-    <p>Mark four vertices of the regular decagon. Each mark starts a group, and each group must contain two or three sides. Can you arrange the groups so that the cuts leave one simple central piece?</p>
+    <p class="general-kicker">4. Challenge</p>
+    <h2 id="challenge-title">Can you group the perimeter?</h2>
+    <label for="challenge-sides">Challenge polygon</label>
+    <select id="challenge-sides">
+      <option value="8">Octagon (8 sides)</option>
+      <option value="10">Decagon (10 sides)</option>
+      <option value="13">13 sides</option>
+      <option value="18">18 sides</option>
+    </select>
+    <p id="challenge-instructions"></p>
     <figure class="general-figure">
       <svg id="challenge-drawing" viewBox="-4 -4 8 8" width="100%" aria-label="Decagon with selectable vertices"></svg>
       <figcaption id="challenge-status" aria-live="polite"></figcaption>
