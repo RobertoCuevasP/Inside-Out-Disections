@@ -25,6 +25,7 @@ export function initRegularDemo() {
     const regularNext = document.querySelector("#regular-next");
     const regularViewButtons = document.querySelectorAll("[data-regular-view]");
     const regularSides = document.querySelector("#regular-sides");
+    const regularSizeForm = document.querySelector("#regular-size-form");
 
     let regularResult;
     let regularMethod;
@@ -127,7 +128,8 @@ export function initRegularDemo() {
         renderRegular();
     });
 
-    regularSides.addEventListener("change", () => {
+    regularSizeForm.addEventListener("submit", (event) => {
+        event.preventDefault();
         selectHexagonMethod(regularMethod ?? "rhombi");
     });
 

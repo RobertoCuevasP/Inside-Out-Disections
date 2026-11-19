@@ -189,8 +189,11 @@
     <h3>Compare the methods</h3>
     <p>The selector covers the cases implemented in this demo: 6 to 60 sides. The counter reports the number of pieces drawn, which can be smaller than the theoretical bound.</p>
     <label for="regular-sides">Regular polygon</label>
-    <label for="regular-sides">Number of sides</label>
-    <input id="regular-sides" type="number" min="6" max="60" step="1" value="6">
+    <form id="regular-size-form" class="regular-size-form">
+      <label for="regular-sides">Number of sides</label>
+      <input id="regular-sides" name="sides" type="number" min="6" max="60" step="1" value="6" required>
+      <button type="submit">Update polygon</button>
+    </form>
 
     <div class="general-buttons" role="group" aria-label="Regular polygon construction">
       <button type="button" id="hexagon-general" aria-pressed="false">General construction</button>

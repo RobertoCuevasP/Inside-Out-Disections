@@ -336,3 +336,31 @@ figcaption {
 .method-steps + .general-hint {
     margin-bottom: 1.25rem;
 }
+
+.regular-size-form {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-block: 1rem;
+}
+
+.regular-size-form label {
+    font-weight: 600;
+}
+
+.regular-size-form input {
+    box-sizing: border-box;
+    width: 5rem;
+    min-height: 44px;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid #64748b;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: inherit;
+    font: inherit;
+}
+
+.regular-size-form button {
+    min-height: 44px;
+}
