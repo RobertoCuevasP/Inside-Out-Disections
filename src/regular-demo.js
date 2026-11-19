@@ -90,6 +90,7 @@ export function initRegularDemo() {
             } else if (n <= 9) {
                 result = buildRegularTwoEdgeDissection(vertices);
             } else {
+                throw new Error(`Diagnostic: grouped branch reached with n=${n}`);
                 result = buildRegularGroupedDissection(vertices);
             }
 
