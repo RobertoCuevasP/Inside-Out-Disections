@@ -1,4 +1,4 @@
-export function buildEdgePair(A, B, alpha) {
+function buildEdgePair(A, B, alpha) {
     // We define a vector d which will be in the middle of A and B
     const dx = (B.x - A.x) / 2;
     const dy = (B.y - A.y) / 2;
@@ -33,7 +33,7 @@ export function buildEdgePair(A, B, alpha) {
     }
 }
 
-export function movePiece(piece, from, to, angle) {
+function movePiece(piece, from, to, angle) {
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
 
@@ -52,7 +52,7 @@ export function movePiece(piece, from, to, angle) {
     return { ...piece, vertices};
 }
 
-export function swapEdgePair(pair, A, B, alpha) {
+function swapEdgePair(pair, A, B, alpha) {
     const [first, second] = pair.pieces;
 
     return [
@@ -114,7 +114,7 @@ function trianglesOverlap(a, b, epsilon = 1e-9){
     return true;
 }
 
-export function findOverlappingTriangles(pieces){
+function findOverlappingTriangles(pieces){
     const triangles = pieces.slice(0, -1);
 
     for (let i = 0; i < triangles.length; i++) {
@@ -186,7 +186,7 @@ function cutTouchesBoundaryAgain(start, tip, polygon, eps) {
     return false;
 }
 
-export function findTriangleOutsidePolygon(pieces, polygon, eps = 1e-9) {
+function findTriangleOutsidePolygon(pieces, polygon, eps = 1e-9) {
     for (let i = 0; i < pieces.length - 1; i++) {
         const [start, midpoint, tip] = pieces[i].vertices;
 
