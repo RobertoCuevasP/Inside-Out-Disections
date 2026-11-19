@@ -415,3 +415,10 @@ figcaption {
     stroke: #92400e;
     stroke-width: 0.09;
 }
+
+.challenge-shared-cut {
+    stroke: #ea580c;
+    stroke-width: 0.12;
+    stroke-linecap: round;
+    pointer-events: none;
+}

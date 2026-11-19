@@ -56,6 +56,29 @@ export function initChallengeDemo() {
 
         drawPieces(pieces, svg);
 
+        // Draw the shared cut above the pieces and below the vertex markers.
+        if (result && pinchMarks.size > 0) {
+            const indices = [...marks].sort((a, b) => a - b);
+
+            indices.forEach((index, groupIndex) => {
+                if (!pinchMarks.has(index)) return;
+
+                // The first vertex starts the group. The last vertex joins it along the inner cut that closes the exterior piece.
+                const piece = result.before[groupIndex];
+                const v = piece.vertices[0];
+                const p = piece.vertices[piece.vertices.length - 1];
+
+                const line = document.createElementNS(svgNamespace, "line");
+                line.setAttribute("x1", v.x);
+                line.setAttribute("y1", -v.y);
+                line.setAttribute("x2", p.x);
+                line.setAttribute("y2", -p.y);
+                line.setAttribute("class", "challenge-shared-cut");
+                line.setAttribute("aria-hidden", "true");
+                svg.append(line);
+            });
+        }
+
         vertices.forEach(({ x, y }, i) => {
             const dot = document.createElementNS(svgNamespace, "circle");
             dot.setAttribute("cx", x);
@@ -130,7 +153,7 @@ export function initChallengeDemo() {
                     });
 
                     if (pinchMarks.size > 0) {
-                        feedback = "Follow the cuts from the orange vertex: the two longer groups pinch the central piece. Try placing a shorter group between them.";
+                        feedback = "The two outer pieces share the orange edge. Our centre outline traces that edge in both directions, so this version rejects the grouping. Try placing a shorter group between the longer ones.";
                     }
                 }
             }
