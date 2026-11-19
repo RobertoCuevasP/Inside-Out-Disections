@@ -80,6 +80,7 @@ export function initRegularDemo() {
     function selectHexagonMethod(method) {
         try {
             const n = Number(regularSides.value);
+            throw new Error(`Valor de n ${n}`);
             const vertices = makeRegularPolygon(n);
 
             let result;
@@ -90,7 +91,6 @@ export function initRegularDemo() {
             } else if (n <= 9) {
                 result = buildRegularTwoEdgeDissection(vertices);
             } else {
-                throw new Error(`Diagnostic: grouped branch reached with n=${n}`);
                 result = buildRegularGroupedDissection(vertices);
             }
 
