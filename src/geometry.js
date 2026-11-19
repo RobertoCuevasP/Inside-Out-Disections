@@ -372,57 +372,217 @@ export function buildHexagonRhombiDissection(vertices, center) {
     return { vertices, before, after };
 }
 
-// Expects regular vertices in counterclockwise order.
-export function buildRegularTwoEdgeDissection(vertices) {
+// Four-piece construction of Meyerowitz
+// A, B are the base endpoints and C is the opposite vertex.
+export function buildFourPieceTriangle(A, B, C) {
+    const along = (a, b, t) => ({
+        x: a.x + t * (b.x - a.x),
+        y: a.y + t * (b.y - a.y)
+    });
+    const L = along(A, C, 0.5);
+    const R = along(B, C, 0.5);
+    const Q = along(L, R, 0.5);
+    const U = along(A, B, 0.25);
+    const W = along(A, B, 0.75);
+
+    const before = [
+        { vertices: [L, R, C], originalEdges: [[1, 2], [2, 0]] },
+        { vertices: [U, W, Q], originalEdges: [[0, 1]] },
+        { vertices: [A, U, Q, L], originalEdges: [[0, 1], [3, 0]] },
+        { vertices: [W, B, R, Q], originalEdges: [[0, 1], [1, 2]] }
+    ];
+    const leftPivot = along(A, Q, 0.5);
+    const rightPivot = along(B, Q, 0.5);
+    const after = [
+        movePiece(before[0], C, Q, 0),
+        movePiece(before[1], Q, C, 0),
+        movePiece(before[2], leftPivot, leftPivot, Math.PI),
+        movePiece(before[3], rightPivot, rightPivot, Math.PI)
+    ];
+
+    return { vertices: [A, B, C], before, after };
+}
+
+// One rhombus around each vertex of a regular pentagon, plus the centre.
+export function buildRegularPentagonDissection(radius = 3.5) {
+    const vertices = Array.from({ length: 5 }, (_, i) => {
+        const a = Math.PI / 2 + 2 * Math.PI * i / 5;
+        return { x: radius * Math.cos(a), y: radius * Math.sin(a) };
+    });
+    const midpoint = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+    const midpoints = vertices.map((v, i) => midpoint(v, vertices[(i + 1) % 5]));
+    const before = [], after = [], inner = [];
+    for (let i = 0; i < 5; i++) {
+        const v = vertices[i], a = midpoints[(i + 4) % 5], b = midpoints[i];
+        const pivot = midpoint(a, b);
+        const tip = { x: 2 * pivot.x - v.x, y: 2 * pivot.y - v.y };
+        const piece = { vertices: [a, v, b, tip], originalEdges: [[0, 1], [1, 2]] };
+        before.push(piece);
+        after.push(movePiece(piece, pivot, pivot, Math.PI));
+        inner.push(tip, b);
+    }
+    const centre = { vertices: inner, originalEdges: [] };
+    return { vertices, before: [...before, centre], after: [...after, centre] };
+}
+
+
+// Expects the vertices of a regular polygon in counterclockwise order.
+export function buildRegularGroupedDissection(vertices) {
+    
+    const n = vertices.length;
+    if (n < 7) {
+        throw new Error("This construction requires at least 7 sides.");
+    }
+
+    const k = Math.floor((n + 2) / 4);
+    const count = Math.ceil(n / k);
+
+    let groups = Array.from({ length: count }, (_, i) =>
+        Math.floor((i + 1) * n / count) - Math.floor(i * n / count)
+    );
+
+    if (groups.includes(1)) {
+        // k = 2 and n is odd. We split the last three sides into two chains meeting at the midpoint of a side
+        groups = [...Array((n - 3) / 2).fill(2), 1.5, 1.5];
+    }
+
+    return buildRegularDissectionFromGroups(vertices, groups);
+}
+
+export function buildRegularDissectionFromGroups(vertices, groups) {
+    
     const n = vertices.length;
 
-    if (![7, 8, 9].includes(n)) {
-        throw new Error("This construction supports 7, 8, or 9 sides.");
+    if (groups.length < 2 || groups.some(size => !Number.isFinite(size) || size <= 1) || Math.abs(groups.reduce((sum, size) => sum + size, 0) - n) > 1e-9) {
+        throw new Error("The groups must cover the perimeter exactly.");
     }
 
-    const chains = [];
+    function pointOnPerimeter(t) {
+        const i = Math.floor(t);
+        const fraction = t - i;
+        const a = vertices[i % n];
+        if (fraction === 0) return a;
 
-    // For odd n, reserve the last three sides for the split.
-    const limit = n % 2 === 0 ? n : n - 3;
-    for (let i = 0; i < limit; i += 2) {
-        chains.push([vertices[i], vertices[i + 1], vertices[(i + 2) % n]]);
-    }
-
-    if (n % 2 !== 0) {
-        const a = vertices[n - 2];
-        const b = vertices[n - 1];
-        const midpoint = {
-            x: (a.x + b.x) / 2,
-            y: (a.y + b.y) / 2
-        };
-
-        chains.push([vertices[n - 3], a, midpoint]);
-        chains.push([midpoint, b, vertices[0]]);
+        const b = vertices[(i + 1) % n];
+        return {
+            x: a.x + fraction * (b.x - a.x),
+            y: a.y + fraction * (b.y - a.y)
+        }
     }
 
     const before = [];
     const after = [];
     const centralVertices = [];
+    let start = 0;
 
-    for (const [a, b, c] of chains) {
-        const d = { x: a.x + c.x - b.x, y: a.y + c.y - b.y };
-        const pivot = { x: (a.x + c.x) / 2, y: (a.y + c.y) / 2 };
+    for (const size of groups) {
+        const end = start + size;
+        const chain = [pointOnPerimeter(start)];
+
+        for (let i = Math.floor(start) + 1; i < end; i++) {
+            chain.push(pointOnPerimeter(i));
+        }
+
+        chain.push(pointOnPerimeter(end));
+
+        const a = chain[0];
+        const b = chain[chain.length - 1];
+
+        const pivot = {
+            x: (a.x + b.x) / 2,
+            y: (a.y + b.y) / 2
+        };
+
+        // A half-turn swaps the endpoints, so only the intermediate
+        // vertices need to be added to close the piece.
+        const inner = chain.slice(1, -1).map(point => ({
+            x: 2 * pivot.x - point.x,
+            y: 2 * pivot.y - point.y
+        }));
+
         const piece = {
-            vertices: [a, b, c, d],
-            originalEdges: [[0, 1], [1, 2]]
+            vertices: [...chain, ...inner],
+            originalEdges: chain.slice(1).map((_, i) => [i, i + 1])
         };
 
         before.push(piece);
         after.push(movePiece(piece, pivot, pivot, Math.PI));
 
-        // Central boundary follows A -> D -> C.
-        // C is the start of the next chain.
-        centralVertices.push(a, d);
+        // The centre follows the inner chain from a to b.
+        // The next group adds b as its starting point.
+        centralVertices.push(a, ...inner.slice().reverse());
+        start += size;
     }
 
     const central = { vertices: centralVertices, originalEdge: null };
     before.push(central);
     after.push(central);
 
-    return { vertices, before, after };
+    return { vertices, before, after, groups };
+}
+
+export function checkRegularChallenge(vertices, groups) {
+    const maxSize = Math.floor((vertices.length + 2) / 4);
+
+    if (groups.some(size => !Number.isInteger(size) || size < 2 || size > maxSize)) {
+        throw new Error(`Each group must contain 2 to ${maxSize} sides.`);
+    }
+
+    const result = buildRegularDissectionFromGroups(vertices, groups);
+    const outer = result.before.slice(0, -1);
+    const central = result.before[result.before.length - 1];
+    const eps = 1e-9;
+
+    if (!isSimpleBoundary(central.vertices)) {
+        throw new Error("The cuts pinch the central piece. Try separating the longer groups.");
+    }
+
+    const edges = points => points.map((a, i) => [a, points[(i + 1) % points.length]]);
+    const cross = (a, b, p) =>
+        (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+    const boundary = edges(vertices);
+
+    if (result.before.some(piece =>
+        !isSimpleBoundary(piece.vertices) ||
+        piece.vertices.some(p => boundary.some(([a, b]) => cross(a, b, p) < -eps))
+    )) {
+        throw new Error("A piece crosses the polygon boundary.");
+    }
+
+    // The exterior pieces are convex: look for a separating axis.
+    function overlaps(p, q) {
+        return [...edges(p), ...edges(q)].every(([a, b]) => {
+            const x = p.map(v => cross(a, b, v));
+            const y = q.map(v => cross(a, b, v));
+            return Math.min(Math.max(...x), Math.max(...y)) -
+                Math.max(Math.min(...x), Math.min(...y)) > eps;
+        });
+    }
+
+    if (outer.some((p, i) =>
+        outer.slice(i + 1).some(q => overlaps(p.vertices, q.vertices))
+    )) {
+        throw new Error("Two of the exterior pieces overlap.");
+    }
+
+    const area = result.before.reduce((sum, p) => sum + polygonArea(p.vertices), 0);
+    if (Math.abs(area - polygonArea(vertices)) > 1e-8) {
+        throw new Error("The pieces do not cover the polygon exactly.");
+    }
+
+    for (const piece of result.after.slice(0, -1)) {
+        for (const [i, j] of piece.originalEdges) {
+            const a = piece.vertices[i];
+            const b = piece.vertices[j];
+            const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+
+            // In a convex polygon, this rules out a marked segment
+            // lying along an outer side. Its endpoints may touch.
+            if (boundary.some(([u, v]) => cross(u, v, mid) <= eps)) {
+                throw new Error("A marked segment does not move into the interior.");
+            }
+        }
+    }
+
+    return result;
 }
