@@ -78,15 +78,9 @@ export function initChallengeDemo() {
             svg.append(dot);
             if (i === focusIndex) dot.focus();
         });
-
-        check.disabled = marks.size !== requiredMarks;
-        reconstruct.textContent = feedback && result ? "Preview rotations" : "Reconstruction";
-
-        const message = feedback ? 
-            `${reconstructed ? "Rotation preview only. " : ""}${feedback}` : reconstructed ? 
-                "The original boundary now lies along internal cuts." : result ? 
-                    "Valid cuts: four exterior pieces and one central piece." : "Check whether these groups fit.";
-        reconstruct.disabled = !result || reconstructed;
+            check.disabled = marks.size !== requiredMarks;
+            reconstruct.disabled = !result || reconstructed;
+            reconstruct.textContent = feedback && result ? "Preview rotations" : "Reconstruction";
 
         if (marks.size !== requiredMarks) {
             status.textContent = `${marks.size} of ${requiredMarks} vertices marked.`;
@@ -94,11 +88,9 @@ export function initChallengeDemo() {
         }
 
         const prefix = `Groups: ${selectedGroups().join(" + ")}.`;
-        const message = error || (reconstructed
-            ? "The original boundary now lies along internal cuts."
-            : result
-                ? "Valid cuts: four exterior pieces and one central piece."
-                : "Check whether these groups fit.");
+        const message = feedback ? `${reconstructed ? "Rotation preview only. " : ""}${feedback}` : reconstructed
+            ? "The original boundary now lies along internal cuts." : result
+                ? "Valid cuts: four exterior pieces and one central piece." : "Check whether these groups fit.";
 
         status.textContent = `${prefix} ${message}`;
     }
