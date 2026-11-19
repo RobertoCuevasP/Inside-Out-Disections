@@ -56,6 +56,31 @@ export function initChallengeDemo() {
 
         drawPieces(pieces, svg);
 
+        // Highlight overlong groups on the original perimeter.
+        if (feedback && !result && marks.size === requiredMarks) {
+            const indices = [...marks].sort((a, b) => a - b);
+            const maxSize = Math.floor((n + 2) / 4);
+
+            selectedGroups().forEach((size, groupIndex) => {
+                if (size <= maxSize) return;
+
+                const start = indices[groupIndex];
+                for (let offset = 0; offset < size; offset++) {
+                    const a = vertices[(start + offset) % n];
+                    const b = vertices[(start + offset + 1) % n];
+
+                    const line = document.createElementNS(svgNamespace, "line");
+                    line.setAttribute("x1", a.x);
+                    line.setAttribute("y1", -a.y);
+                    line.setAttribute("x2", b.x);
+                    line.setAttribute("y2", -b.y);
+                    line.setAttribute("class", "challenge-overlong-group");
+                    line.setAttribute("aria-hidden", "true");
+                    svg.append(line);
+                }
+            });
+        }
+
         // Draw the shared cut above the pieces and below the vertex markers.
         if (result && pinchMarks.size > 0) {
             const indices = [...marks].sort((a, b) => a - b);
@@ -140,6 +165,11 @@ export function initChallengeDemo() {
             result = checkRegularChallenge(ordered, groups);
         } catch (error) {
             feedback = error.message;
+
+            const largestGroup = Math.max(...groups);
+            if (largestGroup > maxSize) {
+                feedback = `The highlighted group has ${largestGroup} sides. This challenge allows at most ${maxSize} sides per group. Move a mark to shorten the highlighted group.`;
+            }
 
             // Only preview groups that satisfy the challenge's size rule.
             if (groups.every(size => size >= 2 && size <= maxSize)) {

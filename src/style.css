@@ -422,3 +422,10 @@ figcaption {
     stroke-linecap: round;
     pointer-events: none;
 }
+
+.challenge-overlong-group {
+    stroke: #b91c1c;
+    stroke-width: 0.13;
+    stroke-linecap: round;
+    pointer-events: none;
+}
