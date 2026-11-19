@@ -133,14 +133,12 @@ a:focus-visible {
 }
 
 label[for="regular-sides"] {
-    display: block;
-    margin-bottom: 0.4rem;
+    margin: 0;
     font-weight: 600;
 }
 
 #regular-sides {
     max-width: 100%;
-    margin-bottom: 1rem;
 }
 
 .general-layout {
