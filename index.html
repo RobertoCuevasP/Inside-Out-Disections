@@ -116,7 +116,7 @@
 
     <div class="regular-explanation">
       <h3>Small regular polygons</h3>
-      <p>Triangle, square and pentagon use separate constructions in Proposition 1. They satisfy the six-piece bound, but the rule for grouping sides below is used for polygons with six or more sides</p>
+      <p>Triangle, square and pentagon use separate constructions in Proposition 1. The <a href="#intro-drawing">four-piece construction above</a> works for any triangle, including an equilateral one.</p>
       <figure class="regular-diagram">
         <svg viewBox="0 0 360 136" role="img" aria-label="A square cut into four smaller squares. Before rotation, the marked segments are on the outside. After each piece rotates 180 degrees, those segments lie on the internal cross.">
           <g fill="#dbeafe" stroke="#334155" stroke-width="1.5">
@@ -138,7 +138,6 @@
         </figcaption>
       </figure>
 
-      <p>The <a href="#intro-drawing">four-piece construction above</a> works for any triangle, including an equilateral one.</p>
       <figure class="regular-diagram">
         <div class="intro-controls" role="group" aria-label="Six-piece pentagon example">
           <button type="button" id="pentagon-cuts" aria-controls="pentagon-drawing">Cuts</button>
@@ -150,7 +149,7 @@
           <span id="pentagon-status" aria-live="polite"></span>
         </figcaption>
       </figure>
-      
+      <p>These three polygons all satisfy the six-piece bound, but the rule for grouping sides below is used for polygons with six or more sides</p>      
       <h3>Grouping sides for n &GreaterEqual; 6</h3>
       <p>Take a chain of consecutive sides and rotate it 180 degrees about the midpoint between its endpoints. The two chains enclose a piece with central symmetry. A half-turn exchanges the outer chain with the chain formed by internal cuts.</p>
       <figure class="regular-diagram">
