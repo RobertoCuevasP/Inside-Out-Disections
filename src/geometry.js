@@ -426,7 +426,8 @@ export function buildRegularTwoEdgeDissection(vertices) {
 
     return { vertices, before, after };
 }
-// Four-piece construction of Meyerowitz (MathOverflow, 2014).
+
+// Four-piece construction of Meyerowitz
 // A, B are the base endpoints and C is the opposite vertex.
 export function buildFourPieceTriangle(A, B, C) {
     const along = (a, b, t) => ({
@@ -455,4 +456,26 @@ export function buildFourPieceTriangle(A, B, C) {
     ];
 
     return { vertices: [A, B, C], before, after };
+}
+
+// One rhombus around each vertex of a regular pentagon, plus the centre.
+export function buildRegularPentagonDissection(radius = 3.5) {
+    const vertices = Array.from({ length: 5 }, (_, i) => {
+        const a = Math.PI / 2 + 2 * Math.PI * i / 5;
+        return { x: radius * Math.cos(a), y: radius * Math.sin(a) };
+    });
+    const midpoint = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+    const midpoints = vertices.map((v, i) => midpoint(v, vertices[(i + 1) % 5]));
+    const before = [], after = [], inner = [];
+    for (let i = 0; i < 5; i++) {
+        const v = vertices[i], a = midpoints[(i + 4) % 5], b = midpoints[i];
+        const pivot = midpoint(a, b);
+        const tip = { x: 2 * pivot.x - v.x, y: 2 * pivot.y - v.y };
+        const piece = { vertices: [a, v, b, tip], originalEdges: [[0, 1], [1, 2]] };
+        before.push(piece);
+        after.push(movePiece(piece, pivot, pivot, Math.PI));
+        inner.push(tip, b);
+    }
+    const centre = { vertices: inner, originalEdges: [] };
+    return { vertices, before: [...before, centre], after: [...after, centre] };
 }
