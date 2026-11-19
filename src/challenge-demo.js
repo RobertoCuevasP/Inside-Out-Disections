@@ -89,7 +89,9 @@ export function initChallengeDemo() {
             dot.setAttribute("role", "button");
             dot.setAttribute("aria-label", `Vertex ${i + 1}`);
             dot.setAttribute("aria-pressed", String(marks.has(i)));
-
+            dot.addEventListener("pointerdown", event => {
+                event.preventDefault();
+            });
             dot.addEventListener("click", () => toggle(i));
             dot.addEventListener("keydown", event => {
                 if (event.key === "Enter" || event.key === " ") {
