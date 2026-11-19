@@ -1,4 +1,8 @@
-import { checkRegularChallenge } from "./geometry.js";
+import {
+    buildRegularDissectionFromGroups,
+    checkRegularChallenge,
+    isSimpleBoundary
+} from "./geometry.js";
 import { drawPieces, svgNamespace } from "./render.js";
 
 export function initChallengeDemo() {
@@ -17,6 +21,8 @@ export function initChallengeDemo() {
 
     const marks = new Set();
     let result = null;
+    let feedback = "";
+    let pinchMarks = new Set();
     let reconstructed = false;
 
     function selectedGroups() {
@@ -27,7 +33,7 @@ export function initChallengeDemo() {
         });
     }
 
-    function toggle(index) {
+    function toggle(index, restoreFocus = false) {
         if (marks.has(index)) {
             marks.delete(index);
         } else if (marks.size < requiredMarks) {
@@ -36,13 +42,14 @@ export function initChallengeDemo() {
             status.textContent = "Remove a mark before selecting another vertex.";
             return;
         }
-
         result = null;
+        feedback = "";
+        pinchMarks.clear();
         reconstructed = false;
-        render(index);
+        render(restoreFocus ? index : null);
     }
 
-    function render(focusIndex = null, error = "") {
+    function render(focusIndex = null) {
         const pieces = result
             ? (reconstructed ? result.after : result.before)
             : [{ vertices }];
@@ -54,7 +61,7 @@ export function initChallengeDemo() {
             dot.setAttribute("cx", x);
             dot.setAttribute("cy", -y);
             dot.setAttribute("r", "0.24");
-            dot.setAttribute("class", "challenge-vertex");
+            dot.setAttribute("class", pinchMarks.has(i) ? "challenge-vertex challenge-vertex--pinch" : "challenge-vertex");
             dot.setAttribute("tabindex", "0");
             dot.setAttribute("role", "button");
             dot.setAttribute("aria-label", `Vertex ${i + 1}`);
@@ -64,7 +71,7 @@ export function initChallengeDemo() {
             dot.addEventListener("keydown", event => {
                 if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    toggle(i);
+                    toggle(i, true);
                 }
             });
 
@@ -73,6 +80,12 @@ export function initChallengeDemo() {
         });
 
         check.disabled = marks.size !== requiredMarks;
+        reconstruct.textContent = feedback && result ? "Preview rotations" : "Reconstruction";
+
+        const message = feedback ? 
+            `${reconstructed ? "Rotation preview only. " : ""}${feedback}` : reconstructed ? 
+                "The original boundary now lies along internal cuts." : result ? 
+                    "Valid cuts: four exterior pieces and one central piece." : "Check whether these groups fit.";
         reconstruct.disabled = !result || reconstructed;
 
         if (marks.size !== requiredMarks) {
@@ -98,14 +111,40 @@ export function initChallengeDemo() {
         const start = indices[0];
         const ordered = [...vertices.slice(start), ...vertices.slice(0, start)];
 
+        const groups = selectedGroups();
+        const maxSize = Math.floor((n + 2) / 4);
+
+        result = null;
+        feedback = "";
+        pinchMarks.clear();
+        reconstructed = false;
+
         try {
-            result = checkRegularChallenge(ordered, selectedGroups());
-            reconstructed = false;
-            render();
+            result = checkRegularChallenge(ordered, groups);
         } catch (error) {
-            result = null;
-            render(null, error.message);
+            feedback = error.message;
+
+            // Only preview groups that satisfy the challenge's size rule.
+            if (groups.every(size => size >= 2 && size <= maxSize)) {
+                result = buildRegularDissectionFromGroups(ordered, groups);
+
+                const centre = result.before[result.before.length - 1];
+                if (!isSimpleBoundary(centre.vertices)) {
+                    groups.forEach((size, i) => {
+                    const previous = groups[(i + groups.length - 1) % groups.length];
+                    if (previous === maxSize && size === maxSize) {
+                        pinchMarks.add(indices[i]);
+                    }
+                    });
+
+                    if (pinchMarks.size > 0) {
+                        feedback = "Follow the cuts from the orange vertex: the two longer groups pinch the central piece. Try placing a shorter group between them.";
+                    }
+                }
+            }
         }
+
+        render();
     });
 
     reconstruct.addEventListener("click", () => {
