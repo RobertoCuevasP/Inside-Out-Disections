@@ -2,7 +2,6 @@ import {
     findValidPolygonDissection,
     verifyReconstruction,
     buildHexagonRhombiDissection,
-    buildRegularTwoEdgeDissection,
     buildRegularGroupedDissection
 } from "./geometry.js";
 import { drawPieces, getOriginalEdges } from "./render.js";
@@ -80,14 +79,16 @@ export function initRegularDemo() {
     function selectHexagonMethod(method) {
         try {
             const n = Number(regularSides.value);
+            if (!Number.isInteger(n) || n < 6 || n > 60) {
+                throw new Error("Enter a whole number from 6 to 60");
+            }
+            
             const vertices = makeRegularPolygon(n);
             let result;
             if (method === "general") {
                 result = findValidPolygonDissection(vertices);
             } else if (n === 6) {
                 result = buildHexagonRhombiDissection(vertices, polygonCenter);
-            } else if (n <= 9) {
-                result = buildRegularTwoEdgeDissection(vertices);
             } else {
                 result = buildRegularGroupedDissection(vertices);
             }

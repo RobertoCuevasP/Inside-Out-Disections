@@ -187,19 +187,10 @@
       </p>  
     </div>
     <h3>Compare the methods</h3>
-    <p>The selector covers the cases implemented in this demo: 6 to 14 sides. The counter reports the number of pieces drawn, which can be smaller than the theoretical bound.</p>
+    <p>The selector covers the cases implemented in this demo: 6 to 60 sides. The counter reports the number of pieces drawn, which can be smaller than the theoretical bound.</p>
     <label for="regular-sides">Regular polygon</label>
-    <select id="regular-sides">
-      <option value="6">Hexagon (6 sides)</option>
-      <option value="7">Heptagon (7 sides)</option>
-      <option value="8">Octagon (8 sides)</option>
-      <option value="9">Nonagon (9 sides)</option>
-      <option value="10">Decagon (10 sides)</option>
-      <option value="11">11 sides</option>
-      <option value="12">12 sides</option>
-      <option value="13">13 sides</option>
-      <option value="14">14 sides</option>
-    </select>
+    <label for="regular-sides">Number of sides</label>
+    <input id="regular-sides" type="number" min="6" max="60" step="1" value="6">
 
     <div class="general-buttons" role="group" aria-label="Regular polygon construction">
       <button type="button" id="hexagon-general" aria-pressed="false">General construction</button>

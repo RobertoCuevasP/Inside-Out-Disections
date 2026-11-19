@@ -372,61 +372,6 @@ export function buildHexagonRhombiDissection(vertices, center) {
     return { vertices, before, after };
 }
 
-// Expects regular vertices in counterclockwise order.
-export function buildRegularTwoEdgeDissection(vertices) {
-    const n = vertices.length;
-
-    if (![7, 8, 9].includes(n)) {
-        throw new Error("This construction supports 7, 8, or 9 sides.");
-    }
-
-    const chains = [];
-
-    // For odd n, reserve the last three sides for the split.
-    const limit = n % 2 === 0 ? n : n - 3;
-    for (let i = 0; i < limit; i += 2) {
-        chains.push([vertices[i], vertices[i + 1], vertices[(i + 2) % n]]);
-    }
-
-    if (n % 2 !== 0) {
-        const a = vertices[n - 2];
-        const b = vertices[n - 1];
-        const midpoint = {
-            x: (a.x + b.x) / 2,
-            y: (a.y + b.y) / 2
-        };
-
-        chains.push([vertices[n - 3], a, midpoint]);
-        chains.push([midpoint, b, vertices[0]]);
-    }
-
-    const before = [];
-    const after = [];
-    const centralVertices = [];
-
-    for (const [a, b, c] of chains) {
-        const d = { x: a.x + c.x - b.x, y: a.y + c.y - b.y };
-        const pivot = { x: (a.x + c.x) / 2, y: (a.y + c.y) / 2 };
-        const piece = {
-            vertices: [a, b, c, d],
-            originalEdges: [[0, 1], [1, 2]]
-        };
-
-        before.push(piece);
-        after.push(movePiece(piece, pivot, pivot, Math.PI));
-
-        // Central boundary follows A -> D -> C.
-        // C is the start of the next chain.
-        centralVertices.push(a, d);
-    }
-
-    const central = { vertices: centralVertices, originalEdge: null };
-    before.push(central);
-    after.push(central);
-
-    return { vertices, before, after };
-}
-
 // Four-piece construction of Meyerowitz
 // A, B are the base endpoints and C is the opposite vertex.
 export function buildFourPieceTriangle(A, B, C) {
@@ -483,18 +428,35 @@ export function buildRegularPentagonDissection(radius = 3.5) {
 
 // Expects the vertices of a regular polygon in counterclockwise order.
 export function buildRegularGroupedDissection(vertices) {
+    
     const n = vertices.length;
-    const groupsBySideCount = {
-        10: [3, 2, 3, 2],
-        11: [3, 3, 3, 2],
-        12: [3, 3, 3, 3],
-        13: [3, 3, 3, 2, 2],
-        14: [4, 3, 4, 3]
-    };
+    if (n < 7) {
+        throw new Error("This construction requires at least 7 sides.");
+    }
 
-    const groups = groupsBySideCount[n];
-    if (!groups) {
-        throw new Error("This construction supports 10 to 14 sides.");
+    const k = Math.floor((n + 2) / 4);
+    const count = Math.ceil(n / k);
+
+    let groups = Array.from({ length: count }, (_, i) =>
+        Math.floor((i + 1) * n / count) - Math.floor(i * n / count)
+    );
+
+    if (groups.includes(1)) {
+        // k = 2 and n is odd. We split the last three sides into two chains meeting at the midpoint of a side
+        groups = [...Array((n - 3) / 2).fill(2), 1.5, 1.5];
+    }
+
+    function pointOnPerimeter(t) {
+        const i = Math.floor(t);
+        const fraction = t - i;
+        const a = vertices[i % n];
+        if (fraction === 0) return a;
+
+        const b = vertices[(i + 1) % n];
+        return {
+            x: a.x + fraction * (b.x - a.x),
+            y: a.y + fraction * (b.y - a.y)
+        }
     }
 
     const before = [];
@@ -503,13 +465,18 @@ export function buildRegularGroupedDissection(vertices) {
     let start = 0;
 
     for (const size of groups) {
-        // A chain of size sides contains size + 1 vertices.
-        const chain = Array.from({ length: size + 1 }, (_, i) =>
-            vertices[(start + i) % n]
-        );
+        const end = start + size;
+        const chain = [pointOnPerimeter(start)];
+
+        for (let i = Math.floor(start) + 1; i < end; i++) {
+            chain.push(pointOnPerimeter(i));
+        }
+
+        chain.push(pointOnPerimeter(end));
 
         const a = chain[0];
-        const b = chain[size];
+        const b = chain[chain.length - 1];
+
         const pivot = {
             x: (a.x + b.x) / 2,
             y: (a.y + b.y) / 2
