@@ -1,4 +1,4 @@
-export function buildEdgePair(A, B, alpha) {
+function buildEdgePair(A, B, alpha) {
     // We define a vector d which will be in the middle of A and B
     const dx = (B.x - A.x) / 2;
     const dy = (B.y - A.y) / 2;
@@ -33,7 +33,7 @@ export function buildEdgePair(A, B, alpha) {
     }
 }
 
-export function movePiece(piece, from, to, angle) {
+function movePiece(piece, from, to, angle) {
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
 
@@ -52,7 +52,7 @@ export function movePiece(piece, from, to, angle) {
     return { ...piece, vertices};
 }
 
-export function swapEdgePair(pair, A, B, alpha) {
+function swapEdgePair(pair, A, B, alpha) {
     const [first, second] = pair.pieces;
 
     return [
@@ -61,42 +61,16 @@ export function swapEdgePair(pair, A, B, alpha) {
     ];
 }
 
-export function buildTriangleDissection(A, B, V, alpha) {
-    // Orientation calculus
-    const cross = (B.x - A.x) * (V.y - A.y) - (B.y - A.y) * (V.x - A.x);
-
-    if (cross === 0) {
-        throw new Error("The given vertices does not form a triangle.");
-    }
-
-    // We will go in anticlock order
-    const vertices = cross > 0 ? [A, B, V] : [A, V, B];
-
-    const angles = vertices.map((point, i) => {
-        const next = vertices[(i + 1) % 3];
-        const previous = vertices[(i + 2) % 3];
-
-        const ux = next.x - point.x;
-        const uy = next.y - point.y;
-        const vx = previous.x - point.x;
-        const vy = previous.y - point.y;
-
-        return Math.atan2(Math.abs(ux * vy - uy * vx), ux * vx + uy * vy);
-    });
-
-    if (!(alpha > 0 && 2 * alpha < Math.min(...angles))) {
-        throw new Error("The angle cut does not leave margin in the corners.");
-    }
-
+export function buildPolygonDissection(vertices, alpha) {
     const before = [];
     const after = [];
     const centralVertices = [];
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < vertices.length; i++) {
         const start = vertices[i];
-        const end = vertices[(i + 1) % 3];
-        const pair = buildEdgePair(start, end, alpha);
+        const end = vertices[(i + 1) % vertices.length];
 
+        const pair = buildEdgePair(start, end, alpha);
         before.push(...pair.pieces);
         after.push(...swapEdgePair(pair, start, end, alpha));
 
@@ -112,4 +86,503 @@ export function buildTriangleDissection(A, B, V, alpha) {
     after.push(central);
 
     return { vertices, before, after };
+}
+
+function trianglesOverlap(a, b, epsilon = 1e-9){
+    for (const triangle of [a, b]) {
+        for (let i = 0; i < triangle.length; i++) {
+            const start = triangle[i];
+            const end = triangle[(i + 1) % triangle.length];
+            const dx = end.x - start.x;
+            const dy = end.y - start.y;
+            const length = Math.hypot(dx, dy);
+
+            if (length === 0) continue;
+
+            const nx = -dy / length;
+            const ny = dx / length;
+            const project = ({ x, y }) => x * nx + y * ny;
+
+            const pa = a.map(project);
+            const pb = b.map(project);
+            const overlap = Math.min(Math.max(...pa), Math.max(...pb)) - Math.max(Math.min(...pa), Math.min(...pb));
+
+            if (overlap <= epsilon) return false;
+        }
+    }
+
+    return true;
+}
+
+function findOverlappingTriangles(pieces){
+    const triangles = pieces.slice(0, -1);
+
+    for (let i = 0; i < triangles.length; i++) {
+        for (let j = i + 1; j < triangles.length; j++) {
+            if (trianglesOverlap(triangles[i].vertices, triangles[j].vertices)) {
+                return [i, j];
+            }
+        }
+    }
+
+    return null;
+}
+
+function cutCross(a, b, p) {
+    return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+}
+
+function cutPointOnSegment(p, a, b, eps) {
+    const length = Math.hypot(b.x - a.x, b.y - a.y);
+
+    return Math.abs(cutCross(a, b, p)) <= eps * length 
+        && p.x >= Math.min(a.x, b.x) - eps
+        && p.x <= Math.max(a.x, b.x) + eps
+        && p.y >= Math.min(a.y, b.y) - eps
+        && p.y <= Math.max(a.y, b.y) + eps;
+}
+
+function cutPointStrictlyInside(point, polygon, eps) {
+    let inside = false;
+
+    for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i];
+        const b = polygon[(i + 1) % polygon.length];
+
+        if (cutPointOnSegment(point, a, b, eps)) return false;
+
+        if ((a.y > point.y) !== (b.y > point.y)) {
+            const crossingX = a.x + (point.y - a.y) * (b.x - a.x) / (b.y - a.y);
+
+            if (crossingX > point.x) inside = !inside;
+        }
+    }
+
+    return inside;
+}
+
+function cutTouchesBoundaryAgain(start, tip, polygon, eps) {
+    const oppositeSigns = (a, b) => (a < 0 && b > 0) || (a > 0 && b < 0);
+
+    for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i];
+        const b = polygon[(i + 1) % polygon.length];
+
+        const startOnEdge = cutPointOnSegment(start, a, b, eps);
+
+        const crosses = !startOnEdge && oppositeSigns(cutCross(start, tip, a), cutCross(start, tip, b)) && oppositeSigns(cutCross(a, b, start), cutCross(a, b, tip));
+
+        if (crosses) return true;
+
+        for (const vertex of [a, b]){
+            const isStart = Math.hypot(vertex.x - start.x, vertex.y - start.y) <= eps;
+
+            if (!isStart && cutPointOnSegment(vertex, start, tip, eps)) {
+                return true;
+            }
+        }        
+    }
+
+    return false;
+}
+
+function findTriangleOutsidePolygon(pieces, polygon, eps = 1e-9) {
+    for (let i = 0; i < pieces.length - 1; i++) {
+        const [start, midpoint, tip] = pieces[i].vertices;
+
+        if (!cutPointStrictlyInside(tip, polygon, eps)
+            || cutTouchesBoundaryAgain(start, tip, polygon, eps)
+            || cutTouchesBoundaryAgain(midpoint, tip, polygon, eps)) {
+                return i;
+        } 
+    }
+    return null;
+}
+
+function segmentsTouchOrCross(a, b, c, d, eps) {
+    const oppositeSigns = (x, y) => (x < 0 && y > 0) || (x > 0 && y < 0);
+
+    const properCrossing = oppositeSigns(cutCross(a, b, c), cutCross(a, b, d)) && oppositeSigns(cutCross(c, d, a), cutCross(c, d, b));
+
+    return properCrossing 
+        || cutPointOnSegment(a, c, d, eps)
+        || cutPointOnSegment(b, c, d, eps)
+        || cutPointOnSegment(c, a, b, eps)
+        || cutPointOnSegment(d, a, b, eps);
+}
+
+export function isSimpleBoundary(vertices, eps = 1e-9) {
+    const n = vertices.length;
+    if (n < 3) return false;
+
+    for (let i = 0; i < n; i++) {
+        const previous = vertices[(i + n - 1) % n];
+        const a = vertices[i];
+        const b = vertices[(i + 1) % n];
+        
+        if (Math.hypot(b.x - a.x, b.y - a.y) <= eps) return false;
+
+        if (cutPointOnSegment(previous, a, b, eps) || cutPointOnSegment(b, previous, a, eps)) {
+            return false;
+        }
+
+        for (let j = i + 1; j < n; j++) {
+            if (j === i + 1 || (i === 0 && j === n -1)) continue;
+
+            const c = vertices[j];
+            const d = vertices[(j + 1) % n];
+
+            if (segmentsTouchOrCross(a, b, c, d, eps)) return false;
+        }
+    }
+
+    return true;
+}
+
+export function findValidPolygonDissection(inputVertices, initialAlpha = Math.atan2(7, 24), maxAttempts = 20) {
+    if (!Number.isFinite(initialAlpha) || initialAlpha <= 0 || initialAlpha >= Math.PI / 2) {
+        throw new Error("The initial cut angle must be between 0 and 90 degrees");
+    }
+
+    if (!Number.isInteger(maxAttempts) || maxAttempts < 1) {
+        throw new Error("The number of attempts must be a positive integer");
+    }
+
+    if (!Array.isArray(inputVertices) || inputVertices.length < 3 || 
+        !inputVertices.every(p => p && Number.isFinite(p.x) && Number.isFinite(p.y))
+        || !isSimpleBoundary(inputVertices)) {
+        throw new Error("The input must be a simple polygon");
+    }
+      
+    const origin = inputVertices[0];
+    let twiceArea = 0;
+
+    for (let i = 1; i < inputVertices.length - 1; i++) {
+        twiceArea += cutCross(origin, inputVertices[i], inputVertices[i + 1]);
+    }
+
+    if (!Number.isFinite(twiceArea) || twiceArea === 0) {
+        throw new Error("The polygon must have a finite, nonzero area");
+    }
+
+    const vertices = [...inputVertices];
+    if (twiceArea < 0) vertices.reverse();
+
+    const attempts = [];
+    let alpha = initialAlpha;
+
+    for (let i = 0; i < maxAttempts && alpha > 0; i++) {
+        const candidate = buildPolygonDissection(vertices, alpha);
+        const { before } = candidate;
+        const central = before[before.length - 1];
+
+        const overlap = findOverlappingTriangles(before);
+        let reason = null;
+
+        if (overlap != null) {
+            reason = `Pieces ${overlap[0] + 1} and ${overlap[1] + 1} overlap.`;
+        } else {
+            const outside = findTriangleOutsidePolygon(before, vertices);
+
+            if (outside !== null) {
+                reason = `Piece ${outside + 1} fails containment`;
+            } else if (!isSimpleBoundary(central.vertices)) {
+                reason = `The central boundary is not simple`;
+            }
+        }
+
+        attempts.push( {alpha, reason });
+        if (reason === null) {
+            return { ...candidate, alpha, attempts };
+        }
+
+        alpha /= 2;
+    }
+
+    const firstFailure = attempts[0]?.reason ?? "No attempt was made";
+    const lastFailure = attempts[attempts.length -1]?.reason ?? firstFailure;
+
+    throw new Error(`No candidate passed the geometric checks after ${attempts.length} attempts. First: ${firstFailure}, last: ${lastFailure}`);
+}
+
+export function polygonArea(vertices) {
+    const origin = vertices[0];
+    let twiceArea = 0;
+
+    for (let i = 1; i < vertices.length -1; i++) {
+        twiceArea += cutCross(origin, vertices[i], vertices[i + 1]);
+    }
+
+    return Math.abs(twiceArea) / 2;
+}
+
+export function verifyReconstruction({ vertices, before, after }, eps = 1e-9) {
+    const last = 2 * vertices.length;
+
+    if (before.length !== last + 1 || after.length !== last + 1) {
+        return false;
+    }
+
+    const samePoint = (a, b) => Math.hypot(a.x - b.x, a.y - b.y) <= eps;
+
+    for (let i = 0; i < last; i++) {
+        const partner = i % 2 === 0 ? i + 1 : i - 1;
+        const [a, b, c] = before[partner].vertices;
+        const expected = [a, c, b];
+        const moved = after[i];
+
+        if (moved.vertices.length !== 3 ||
+            !moved.vertices.every((point, j) => samePoint(point, expected[j])) ||
+            moved.originalEdge?.[0] !== 0 ||
+            moved.originalEdge?.[1] !== 1) {
+            return false
+        }        
+    }
+
+    const centralBefore = before[last].vertices;
+    const centralAfter = after[last].vertices;
+
+    return centralBefore.length === centralAfter.length &&
+        centralAfter.every((point, i) => samePoint(point, centralBefore[i]));
+}
+
+export function buildHexagonRhombiDissection(vertices, center) {
+    const before = [];
+    const after = [];
+
+    for (let i = 0; i < 6; i += 2) {
+        const first = vertices[i];
+        const middle = vertices[i + 1];
+        const last = vertices[(i + 2) % 6];
+
+        const piece = {
+            vertices: [center, first, middle, last],
+            originalEdges: [[1, 2], [2, 3]]
+        };
+
+        const pivot = {
+            x: (center.x + middle.x) / 2,
+            y: (center.y + middle.y) / 2
+        }
+
+        before.push(piece);
+        after.push(movePiece(piece, pivot, pivot, Math.PI));
+    }
+
+    return { vertices, before, after };
+}
+
+// Four-piece construction of Meyerowitz
+// A, B are the base endpoints and C is the opposite vertex.
+export function buildFourPieceTriangle(A, B, C) {
+    const along = (a, b, t) => ({
+        x: a.x + t * (b.x - a.x),
+        y: a.y + t * (b.y - a.y)
+    });
+    const L = along(A, C, 0.5);
+    const R = along(B, C, 0.5);
+    const Q = along(L, R, 0.5);
+    const U = along(A, B, 0.25);
+    const W = along(A, B, 0.75);
+
+    const before = [
+        { vertices: [L, R, C], originalEdges: [[1, 2], [2, 0]] },
+        { vertices: [U, W, Q], originalEdges: [[0, 1]] },
+        { vertices: [A, U, Q, L], originalEdges: [[0, 1], [3, 0]] },
+        { vertices: [W, B, R, Q], originalEdges: [[0, 1], [1, 2]] }
+    ];
+    const leftPivot = along(A, Q, 0.5);
+    const rightPivot = along(B, Q, 0.5);
+    const after = [
+        movePiece(before[0], C, Q, 0),
+        movePiece(before[1], Q, C, 0),
+        movePiece(before[2], leftPivot, leftPivot, Math.PI),
+        movePiece(before[3], rightPivot, rightPivot, Math.PI)
+    ];
+
+    return { vertices: [A, B, C], before, after };
+}
+
+// One rhombus around each vertex of a regular pentagon, plus the centre.
+export function buildRegularPentagonDissection(radius = 3.5) {
+    const vertices = Array.from({ length: 5 }, (_, i) => {
+        const a = Math.PI / 2 + 2 * Math.PI * i / 5;
+        return { x: radius * Math.cos(a), y: radius * Math.sin(a) };
+    });
+    const midpoint = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+    const midpoints = vertices.map((v, i) => midpoint(v, vertices[(i + 1) % 5]));
+    const before = [], after = [], inner = [];
+    for (let i = 0; i < 5; i++) {
+        const v = vertices[i], a = midpoints[(i + 4) % 5], b = midpoints[i];
+        const pivot = midpoint(a, b);
+        const tip = { x: 2 * pivot.x - v.x, y: 2 * pivot.y - v.y };
+        const piece = { vertices: [a, v, b, tip], originalEdges: [[0, 1], [1, 2]] };
+        before.push(piece);
+        after.push(movePiece(piece, pivot, pivot, Math.PI));
+        inner.push(tip, b);
+    }
+    const centre = { vertices: inner, originalEdges: [] };
+    return { vertices, before: [...before, centre], after: [...after, centre] };
+}
+
+
+// Expects the vertices of a regular polygon in counterclockwise order.
+export function buildRegularGroupedDissection(vertices) {
+    
+    const n = vertices.length;
+    if (n < 7) {
+        throw new Error("This construction requires at least 7 sides.");
+    }
+
+    const k = Math.floor((n + 2) / 4);
+    const count = Math.ceil(n / k);
+
+    let groups = Array.from({ length: count }, (_, i) =>
+        Math.floor((i + 1) * n / count) - Math.floor(i * n / count)
+    );
+
+    if (groups.includes(1)) {
+        // k = 2 and n is odd. We split the last three sides into two chains meeting at the midpoint of a side
+        groups = [...Array((n - 3) / 2).fill(2), 1.5, 1.5];
+    }
+
+    return buildRegularDissectionFromGroups(vertices, groups);
+}
+
+export function buildRegularDissectionFromGroups(vertices, groups) {
+    
+    const n = vertices.length;
+
+    if (groups.length < 2 || groups.some(size => !Number.isFinite(size) || size <= 1) || Math.abs(groups.reduce((sum, size) => sum + size, 0) - n) > 1e-9) {
+        throw new Error("The groups must cover the perimeter exactly.");
+    }
+
+    function pointOnPerimeter(t) {
+        const i = Math.floor(t);
+        const fraction = t - i;
+        const a = vertices[i % n];
+        if (fraction === 0) return a;
+
+        const b = vertices[(i + 1) % n];
+        return {
+            x: a.x + fraction * (b.x - a.x),
+            y: a.y + fraction * (b.y - a.y)
+        }
+    }
+
+    const before = [];
+    const after = [];
+    const centralVertices = [];
+    let start = 0;
+
+    for (const size of groups) {
+        const end = start + size;
+        const chain = [pointOnPerimeter(start)];
+
+        for (let i = Math.floor(start) + 1; i < end; i++) {
+            chain.push(pointOnPerimeter(i));
+        }
+
+        chain.push(pointOnPerimeter(end));
+
+        const a = chain[0];
+        const b = chain[chain.length - 1];
+
+        const pivot = {
+            x: (a.x + b.x) / 2,
+            y: (a.y + b.y) / 2
+        };
+
+        // A half-turn swaps the endpoints, so only the intermediate
+        // vertices need to be added to close the piece.
+        const inner = chain.slice(1, -1).map(point => ({
+            x: 2 * pivot.x - point.x,
+            y: 2 * pivot.y - point.y
+        }));
+
+        const piece = {
+            vertices: [...chain, ...inner],
+            originalEdges: chain.slice(1).map((_, i) => [i, i + 1])
+        };
+
+        before.push(piece);
+        after.push(movePiece(piece, pivot, pivot, Math.PI));
+
+        // The centre follows the inner chain from a to b.
+        // The next group adds b as its starting point.
+        centralVertices.push(a, ...inner.slice().reverse());
+        start += size;
+    }
+
+    const central = { vertices: centralVertices, originalEdge: null };
+    before.push(central);
+    after.push(central);
+
+    return { vertices, before, after, groups };
+}
+
+export function checkRegularChallenge(vertices, groups) {
+    const maxSize = Math.floor((vertices.length + 2) / 4);
+
+    if (groups.some(size => !Number.isInteger(size) || size < 2 || size > maxSize)) {
+        throw new Error(`Each group must contain 2 to ${maxSize} sides.`);
+    }
+
+    const result = buildRegularDissectionFromGroups(vertices, groups);
+    const outer = result.before.slice(0, -1);
+    const central = result.before[result.before.length - 1];
+    const eps = 1e-9;
+
+    if (!isSimpleBoundary(central.vertices)) {
+        throw new Error("The cuts pinch the central piece. Try separating the longer groups.");
+    }
+
+    const edges = points => points.map((a, i) => [a, points[(i + 1) % points.length]]);
+    const cross = (a, b, p) =>
+        (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+    const boundary = edges(vertices);
+
+    if (result.before.some(piece =>
+        !isSimpleBoundary(piece.vertices) ||
+        piece.vertices.some(p => boundary.some(([a, b]) => cross(a, b, p) < -eps))
+    )) {
+        throw new Error("A piece crosses the polygon boundary.");
+    }
+
+    // The exterior pieces are convex: look for a separating axis.
+    function overlaps(p, q) {
+        return [...edges(p), ...edges(q)].every(([a, b]) => {
+            const x = p.map(v => cross(a, b, v));
+            const y = q.map(v => cross(a, b, v));
+            return Math.min(Math.max(...x), Math.max(...y)) -
+                Math.max(Math.min(...x), Math.min(...y)) > eps;
+        });
+    }
+
+    if (outer.some((p, i) =>
+        outer.slice(i + 1).some(q => overlaps(p.vertices, q.vertices))
+    )) {
+        throw new Error("Two of the exterior pieces overlap.");
+    }
+
+    const area = result.before.reduce((sum, p) => sum + polygonArea(p.vertices), 0);
+    if (Math.abs(area - polygonArea(vertices)) > 1e-8) {
+        throw new Error("The pieces do not cover the polygon exactly.");
+    }
+
+    for (const piece of result.after.slice(0, -1)) {
+        for (const [i, j] of piece.originalEdges) {
+            const a = piece.vertices[i];
+            const b = piece.vertices[j];
+            const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+
+            // In a convex polygon, this rules out a marked segment
+            // lying along an outer side. Its endpoints may touch.
+            if (boundary.some(([u, v]) => cross(u, v, mid) <= eps)) {
+                throw new Error("A marked segment does not move into the interior.");
+            }
+        }
+    }
+
+    return result;
 }

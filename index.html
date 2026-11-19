@@ -3,18 +3,269 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inside-out Dissection triangle test</title>
+  <link rel="stylesheet" href="./src/style.css">
+  <title>Inside-out Dissection</title>
 </head>
 <body>
-  <h1>Inside-Out Dissection of a Triangle</h1>
-  <div role="group" aria-label="Disection steps">
-    <legend>Dashed lines mark segments of the original boundary. Follow them from cuts to reconstruction</legend>
-    <button type="button" data-step="original">Original</button>
-    <button type="button" data-step="cuts">Cuts</button>
-    <button type="button" data-step="after">Reconstruction</button>
-  </div>
-  <p id="step-description" aria-live="polite"></p>
-  <svg id="drawing" viewBox="-0.5 -7.5 11 8" width="100%" role="img" aria-label="Triangle divided into seven pieces"></svg>
+  <section id="introduction" class="intro" aria-labelledby="intro-title">
+    <header>
+      <p class="intro-eyebrow">1. Introduction - Computational Geometry - ULB</p>
+      <h1 id="intro-title">Inside-Out Dissections</h1>
+      <p>Can we cut a polygon into pieces and put them back together so that the original boundary moves to the interior?</p>
+      <p>An inside-out dissection does this with rotations and translations. The pieces form a congruent copy of the original polygon, but the new outline is made from segments that were originally internal cuts.</p>
+      <p>This project explores two results from Akpanya, Rivkin and Stock: a construction with at most 2n + 1 pieces for a simple polygon with n sides, and a bound of six pieces for regular polygons.
+        <a href="https://cccg-wads-2025.eecs.yorku.ca/cccg-papers/31.pdf">Read the paper (CCCG 2025)</a>.
+      </p>
+    </header>
+    <h2>Start with a triangle</h2>
+    <p id="intro-caption">Aaron Meyerowitz's construction cuts a triangle into two smaller triangles and two parallelograms. Follow the dashed segments from
+      <strong>Cuts</strong> to <strong>Reconstruction</strong>.
+    </p>
+    <div class="intro-controls" role="group" aria-label="Four-piece triangle example">
+      <button type="button" id="intro-cuts" aria-pressed="true">Cuts</button>
+      <button type="button" id="intro-reconstruction" aria-pressed="false">Reconstruction</button>
+    </div>
+    <p id="intro-status" aria-live="polite"></p>
+    <svg id="intro-drawing" viewBox="-4.5 -3.5 9 4" role="img"
+       aria-label="Inside-out dissection of an obtuse triangle into four pieces"
+       aria-describedby="intro-caption intro-status">
+    </svg>
+    <p class="general-hint">
+      Construction by <a href="https://mathoverflow.net/questions/186332/inside-out-polygonal-dissections/186335#186335">Aaron Meyerowitz</a>.
+      The triangles exchange positions by translation, and each parallelogram makes a half-turn.
+    </p>
+    <h2>From a triangle to a polygon</h2>
+    <p>A simple polygon with <var>n</var> vertices can be triangulated into <var>n</var> - 2 triangles without adding vertices. Rebuild each triangle inside out in its original position. Each original boundary edge lies on one of those triangles, so its marked segments move into the polygon's interior.</p>
+    <figure class="regular-diagram">
+      <svg viewBox="0 0 270 135" role="img" aria-label="A pentagon divided by two diagonals from one vertex into three triangles">
+        <g stroke="#334155" stroke-width="1.5">
+          <polygon points="54,108 100,24 170,12" fill="#bfdbfe"/>
+          <polygon points="54,108 170,12 218,64" fill="#fed7aa"/>
+          <polygon points="54,108 218,64 175,118" fill="#bbf7d0"/>
+        </g>
+        <g text-anchor="middle" fill="#1e293b" font-size="14">
+          <text x="103" y="48">1</text><text x="149" y="62">2</text><text x="156" y="100">3</text>
+        </g>
+      </svg>
+      <figcaption>A pentagon gives three triangles, so this method uses at most 12 pieces. In general the bound is <strong>4(<var>n</var> - 2)</strong>.</figcaption>
+    </figure>
+    <p><a href="#general-construction">Can we guarantee fewer pieces without triangulating first?</a></p>
+  </section>
+
+  <section id="general-construction" class="demo-section" aria-labelledby="general-title">
+    <header class="general-header">
+      <p class="general-kicker">2. The general construction</p>
+      <h2 id="general-title">Two triangles per side</h2>
+      <p>The edge-based construction improves the triangulation bound for five or more sides. For a pentagon, the two bounds are 11 and 12 pieces. Neither bound claims a minimum.</p>
+      <p class="general-formula">
+        <strong>2<var>n</var> + 1 pieces</strong>
+        <span><var>n</var> is the number of sides</span>
+      </p>
+    </header>
+    <h3>How a pair of pieces works</h3>
+    <ol class="method-steps">
+      <li><strong>Construct the pair.</strong> For the directed edge A -> B, let M be its midpoint. With the polygon oriented counterclockwise, rotate the vector AM about A by +&alpha; to get C, and BM about B by -&alpha; to get D. The two triangles are congruent by side-angle-side.</li>
+      <li><strong>Exchange the pair.</strong> Map A to B with a rotation of &pi; - &alpha;, and use the inverse motion for its partner. The first piece's marked segment AM maps to BD, which was an internal cut.</li>
+      <li><strong>Check the candidate.</strong> The editor checks that the input boundary is simple. For each candidate angle it checks containment of the triangles, overlap between triangles, and simplicity of the central boundary. It then checks that the moved pieces fit their intended positions.</li>
+    </ol>
+    <p class="general-hint">The editor starts at about 16.26 degrees, why? The first trial uses &alpha; = arctan(7/24). For a side of length L, the cut tip lies (L/2) sin &alpha; inward from that side. Since sin &alpha; = 7/25, this starts with a cut depth of 14% of the side length. This makes the first cuts visible and gives a consistent starting point across scales. The editor halves the angle when a candidate fails the cut checks, up to 20 attempts. In a narrow rectangle, pieces on opposite sides can overlap even if the corners leave room. In a polygon with a notch, a cut can leave the polygon even when its tip is inside. The implementation uses numerical tolerances; exhausting the search does not establish impossibility.</p>
+    <div class="general-layout">
+      <div class="general-controls">
+        <div>
+          <h3>Explore the dissection</h3>
+          <div class="general-buttons" role="group" aria-label="Dissection steps">
+            <button type="button" data-step="original">Original</button>
+            <button type="button" data-step="cuts">Cuts</button>
+            <button type="button" id="next-swap" disabled>Next step</button>
+            <button type="button" data-step="after">Reconstruction</button>
+          </div>
+          <p class="general-hint">Select <strong>Cuts</strong>, then <strong>Next step</strong> to exchange one pair at a time</p>
+        </div>
+
+        <div>
+          <h3>Draw your own polygon</h3>
+          <div class="general-buttons" role="group" aria-label="Polygon editor">
+            <button type="button" id="start-polygon">Draw polygon</button>
+            <button type="button" id="undo-vertex" disabled>Undo vertex</button>
+            <button type="button" id="close-polygon" disabled>Close polygon</button>
+          </div>
+          <p class="general-hint">Tap each vertex once, in order. The dashed closing edge previews the segment from the last vertex to the first</p>
+          <p id="editor-status" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <figure class="general-figure">
+        <svg id="drawing" viewBox="-0.5 -7.5 11 8" width="100%" role="img" aria-label="Polygon dissection"></svg>
+        <figcaption>
+          <p id="step-description" aria-live="polite"></p>
+          <div class="general-legend">
+            <span aria-hidden="true"></span>
+            <span>During the dissection, dashed red lines mark the original boundary</span>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="regular-polygons" class="demo-section" aria-labelledby="regular-title">
+    <header class="general-header">
+      <p class="general-kicker">3. Regular polygons</p>
+      <h2 id="regular-title">What does symmetry change?</h2>
+      <p>Can symmetry reduce the number of pieces? Proposition 1 gives a six-piece upper bound for regular polygons. Start with the small cases, then compare both constructions on the same larger polygon.</p>
+    </header>
+
+    <div class="regular-explanation">
+      <h3>Small regular polygons</h3>
+      <p>Triangle, square and pentagon use separate constructions in Proposition 1. The <a href="#intro-drawing">four-piece construction above</a> works for any triangle, including an equilateral one.</p>
+      <figure class="regular-diagram">
+        <svg viewBox="0 0 360 136" role="img" aria-label="A square cut into four smaller squares. Before rotation, the marked segments are on the outside. After each piece rotates 180 degrees, those segments lie on the internal cross.">
+          <g fill="#dbeafe" stroke="#334155" stroke-width="1.5">
+            <rect x="30" y="10" width="100" height="100"/>
+            <rect x="230" y="10" width="100" height="100"/>
+            <path d="M80 10V110 M30 60H130 M280 10V110 M230 60H330"/>
+          </g>
+          <g fill="none" stroke="#991b1b" stroke-width="3" stroke-dasharray="6 4">
+            <rect x="30" y="10" width="100" height="100"/>
+            <path d="M280 10V110 M230 60H330"/>
+          </g>
+          <g fill="#334155" text-anchor="middle">
+            <text x="80" y="130">Cuts</text>
+            <text x="280" y="130">Reconstruction</text>
+          </g>
+        </svg>
+        <figcaption>
+          <strong> Square - 4 pieces.</strong> Rotate each small square 180 degrees about its own centre. Each piece keeps its position, but its two original outer sides now lie along the internal cross.
+        </figcaption>
+      </figure>
+
+      <figure class="regular-diagram">
+        <div class="intro-controls" role="group" aria-label="Six-piece pentagon example">
+          <button type="button" id="pentagon-cuts" aria-controls="pentagon-drawing">Cuts</button>
+          <button type="button" id="pentagon-after" aria-controls="pentagon-drawing">Reconstruction</button>
+        </div>
+        <svg id="pentagon-drawing" viewBox="-4 -4 8 8" role="img" aria-label="Six-piece inside-out dissection of a regular pentagon"></svg>
+        <figcaption>
+          <strong>Pentagon - 6 pieces.</strong> Join the midpoints of the two sides at each vertex to set the endpoints of a chain. Complete each chain to a rhombus. A half-turn of each rhombus sends its two marked half-sides to the interior. The central piece stays fixed.
+          <span id="pentagon-status" aria-live="polite"></span>
+        </figcaption>
+      </figure>
+      <p>These three polygons all satisfy the six-piece bound, but the rule for grouping sides below is used for polygons with six or more sides</p>      
+      <h3>Grouping sides for n &GreaterEqual; 6</h3>
+      <p>Take a chain of consecutive sides and rotate it 180 degrees about the midpoint between its endpoints. The two chains enclose a piece with central symmetry. A half-turn exchanges the outer chain with the chain formed by internal cuts.</p>
+      <figure class="regular-diagram">
+        <svg viewBox="0 0 360 160" role="img" aria-label="A parallelogram with outer chain A, B, C and inner chain C, D, A. A half-turn about O maps A to C and B to D.">
+          <polygon points="55,80 150,25 275,80 180,135" fill="#dbeafe" stroke="#334155" stroke-width="2"/>
+          <path d="M55 80L150 25L275 80" fill="none" stroke="#991b1b" stroke-width="3" stroke-dasharray="6 4"/>
+          <path d="M55 80H275" fill="none" stroke="#64748b" stroke-dasharray="3 4"/>
+          <circle cx="165" cy="80" r="4" fill="#334155"/>
+          <g fill="#334155" text-anchor="middle">
+            <text x="40" y="85">A</text>
+            <text x="150" y="17">B</text>
+            <text x="291" y="85">C</text>
+            <text x="180" y="153">D</text>
+            <text x="165" y="104">O</text>
+          </g>
+        </svg>
+        <figcaption>
+          <strong>One piece, two chains.</strong> The half-turn about O sends A to C and B to D. The marked chain A-B-C moves to C-D-A.
+        </figcaption>
+      </figure>
+
+      <p>For a block of <var>k</var> full sides, the angle at either end of the piece is 2&pi; (<var>k</var> - 1)/<var>n</var>.
+        At a shared vertex, two neighbouring blocks must fit within the polygon's interior angle. Requiring each block to use at most half of that angle gives:
+      </p>
+      <p class="regular-bound">
+        <strong>k = &lfloor;(n + 2)/4&rfloor;</strong><br>
+        <strong>Piece bound: &lceil;n/k&rceil; + 1 &le; 6</strong>
+      </p>
+      <p>
+        The extra piece accounts for the central region when one remains. This is an upper bound, not a minimum. For example, the hexagon needs no central piece in the three-rhombus construction. For the heptagon and nonagon, 
+        this demo splits one side at its midpoint to avoid a block made of a single straight segment.
+      </p>
+      <p>
+        <a href="https://cccg-wads-2025.eecs.yorku.ca/cccg-papers/31.pdf#page=3">Source: Akpanya, Rivkin and Stock, CCCG 2025, Proposition 1</a>.
+      </p>  
+    </div>
+    <h3>Compare the methods</h3>
+    <p>The selector covers the cases implemented in this demo: 6 to 60 sides. The counter reports the number of pieces drawn, which can be smaller than the theoretical bound.</p>
+    <form id="regular-size-form" class="regular-size-form">
+      <label for="regular-sides">Number of sides</label>
+      <input id="regular-sides" name="sides" type="number" min="6" max="60" step="1" value="6" required>
+      <button type="submit">Update polygon</button>
+    </form>
+
+    <div class="general-buttons" role="group" aria-label="Regular polygon construction">
+      <button type="button" id="hexagon-general" aria-pressed="false">General construction</button>
+      <button type="button" id="hexagon-rhombi" aria-pressed="true">Regular construction</button>
+    </div>
+
+    <div class="general-buttons regular-steps" role="group" aria-label="Regular polygon dissection steps">
+      <button type="button" data-regular-view="original">Original</button>
+      <button type="button" data-regular-view="cuts">Cuts</button>
+      <button type="button" id="regular-next" disabled>Next step</button>
+      <button type="button" data-regular-view="after">Reconstruction</button>
+    </div>
+
+    <figure class="general-figure">
+      <svg id="regular-drawing" viewBox="1 -7.5 8 8" width="100%" role="img" aria-label="Regular polygon dissection" aria-describedby="hexagon-example"></svg>
+      <figcaption id="hexagon-example" aria-live="polite"></figcaption>
+    </figure>
+  </section>
+  <section id="challenge" class="demo-section" aria-labelledby="challenge-title">
+    <p class="general-kicker">4. Challenge</p>
+    <h2 id="challenge-title">Can you group the perimeter?</h2>
+    <div class="challenge-picker">
+    <label for="challenge-sides">Challenge polygon</label>
+      <select id="challenge-sides">
+        <option value="8">Octagon (8 sides)</option>
+        <option value="10">Decagon (10 sides)</option>
+        <option value="13">13 sides</option>
+        <option value="18">18 sides</option>
+      </select>
+    </div>
+    <p id="challenge-instructions"></p>
+    <figure class="general-figure">
+      <svg id="challenge-drawing" viewBox="-4 -4 8 8" width="100%" aria-label="Decagon with selectable vertices"></svg>
+      <figcaption id="challenge-status" aria-live="polite"></figcaption>
+    </figure>
+
+    <div class="general-buttons challenge-actions" role="group" aria-label="Challenge controls">
+      <button type="button" id="challenge-check" disabled>Check cuts</button>
+      <button type="button" id="challenge-reconstruct" disabled>Reconstruction</button>
+      <button type="button" id="challenge-reset">Reset</button>
+    </div>
+  </section>
+  <section id="references" class="demo-section" aria-labelledby="references-title">
+    <h2 id="references-title">References</h2>
+    <ol>
+      <li>Reymond Akpanya, Adi Rivkin, and Frederick Stock.
+        <a href="https://cccg-wads-2025.eecs.yorku.ca/cccg-papers/31.pdf">Inside-Out Dissections of Polygons and Polyhedra</a>.
+        Proceedings of the 37th Canadian Conference on Computational Geometry, pp. 71-77, 2025.
+      </li>
+      <li>Aaron Meyerowitz.
+        <a href="https://mathoverflow.net/questions/186332/inside-out-polygonal-dissections/186335#186335">Answer to "Inside-out polygonal dissections"</a>.
+        MathOverflow, 2014. Source for the four-piece construction; the demo generates its own coordinates and drawing.
+      </li>
+      <li>Mark de Berg, Otfried Cheong, Marc van Kreveld, and Mark Overmars.
+        <a href="https://doi.org/10.1007/978-3-540-77974-2">
+          <cite>Computational Geometry: Algorithms and Applications</cite>
+        </a>.
+        3rd edition, Springer, 2008. Chapter 3, "Polygon Triangulation."
+      </li>
+
+      <li>David Eberly.
+        <a href="https://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf">
+          <cite>Intersection of Convex Objects: The Method of Separating Axes</cite>
+        </a>.
+        Geometric Tools. See "Separation of Convex Polygons in 2D."
+      </li>
+
+      <li>Jonathan Richard Shewchuk.
+        <a href="https://doi.org/10.1007/PL00009321">Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates</a>.
+        <cite>Discrete &amp; Computational Geometry</cite>,18(3), pp. 305-363, 1997.
+      </li>
+    </ol>
+  </section>
   <script type="module" src="./src/demo.js"></script>
 </body>
 </html>
